@@ -42,8 +42,6 @@ def loop2(rule_num, letter=''):
     return letter
 
 
-# answers = '^' + loop2(0) + '\n'
-# apattern = re.compile(answers)
 loop42 = loop2(42)
 loop31 = loop2(31)
 
@@ -53,23 +51,16 @@ def answers(x):
     return re.compile(a)
 
 
+# answers = '^' + loop2(0) + '\n' # Part 1
+# apattern = re.compile(answers) # Part 1
 input_file = open(ifn, 'r')
 content1 = input_file.readlines()
 correct_answers = 0
-# p42 = re.compile('^(?:' + loop2(42) + ')*?(' + loop2(42) + ')')
-# p31 = re.compile('(' + loop2(31) + ')(?:' + loop2(31) + ')*?\n')
 for x in content1[start_line:]:
     for y in range(1, 20):
         match = answers(y).findall(x)
+        # match = apattern.findall(x) # Part 1
         if match:
             correct_answers += 1
             break
-    # print(match)
-    # if match:
-    #     match42 = p42.findall(x)
-    #     print('42', match42)
-    #     match31 = p31.findall(x)
-    #     print('31', match31)
-    #     if len(match42) > len(match31):
-    #         correct_answers += 1
 print(correct_answers)
