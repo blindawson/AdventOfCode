@@ -1,5 +1,6 @@
 import numpy as np
 import copy
+import pickle
 
 # ifn = r'C:\Users\brlw\Desktop\Repositories\AdventOfCode\2020\input\input20example.txt'
 # array_size = 3
@@ -147,3 +148,5 @@ if __name__ == "__main__":
     print(corner_tiles)
     print(np.prod(corner_tiles))
 
+    filehandler = open('../output/aoc20_output.pkl', 'wb')
+    pickle.dump(tile_array, filehandler)
