@@ -1,26 +1,8 @@
 lanternfish_file = open(r'../input/06_lanternfish.txt')
 lanternfish_start = [int(x) for x in lanternfish_file.read().split(',')]
 
-
-def multipy_lanternfish(lanternfish, days):
-    for day in range(days):
-        # print(day)
-        for f, fish in enumerate(lanternfish):
-            if fish == 0:
-                lanternfish.append(9)
-                lanternfish[f] = 6
-            else:
-                lanternfish[f] = fish - 1
-        # print(lanternfish)
-    return lanternfish
-
-
-print(f'Part 1 answer: {len(multipy_lanternfish(lanternfish_start.copy(), 80))}')
-
-fish_by_age = {0: 0, 1: 0, 2: 0, 3: 0, 4: 0,
-               5: 0, 6: 0, 7: 0, 8: 0}
-
-for age in fish_by_age.keys():
+fish_by_age = {}
+for age in range(9):
     fish_by_age[age] = sum(1 for x in lanternfish_start if x == age)
 
 
