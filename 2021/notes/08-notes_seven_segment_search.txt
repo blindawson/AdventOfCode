@@ -1,0 +1,38 @@
+acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab |
+cdfeb fcadb cdfeb cdbaf
+
+1: ab (len = 2)
+4: eafb (len = 4)
+7: dab (len = 3)
+8: acedgfb (len = 7)
+
+		1st
+		top: d (in 7, not 1)
+		
+4th							3rd
+top_left					top_right
+e or f (in 4, not 1)		a or b (in 1)
+e (in all len=6)			a (in 2 of 3 len=6 strings)
+		
+		5th
+		mid
+		e or f (in 4, not 1)
+		f (not in all len=6)
+7th							2nd
+bottom_left					bottom_right
+c (not yet used)			a or b (in 1)
+							b (in all 3 len=6 strings)
+		6th
+		bottom
+		c or g (not yet used)
+		g (in all len=6)
+		
+0: 6 letter no mid
+1: 2 letter 
+2: 5 letter includes top, top_right, mid, bottom_left, bottom
+3: 5 letter includes top, top_right, mid, bottom_right, bottom
+4: 4 letter
+5: 5 letter includes top, top_left, mid, bottom_right, bottom
+6: 6 letter no top_right
+7: 3 letter
+8: 7 letter
