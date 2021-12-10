@@ -1,6 +1,6 @@
 from statistics import median
 
-syntax_file = open(r'../input/10_syntax_scoring.txt')
+syntax_file = open(r'year_2021/input/10_syntax_scoring.txt')
 syntax_original = syntax_file.read().splitlines()
 
 character_scores = {')': 3,
