@@ -1,6 +1,6 @@
 from year_2021.src import day10_syntax_scoring as ss
 
-test_file = open(r'../input/10_test_input.txt')
+test_file = open(r'year_2021/tests/test_inputs/10_test_input.txt')
 test_data = test_file.read().splitlines()
 
 
