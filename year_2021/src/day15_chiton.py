@@ -40,14 +40,39 @@ def dijkstra_algorithm(local_risks):
         visited[current_x, current_y] = 1
         tentative_total_risks[current_x, current_y] = 0
     
-    
+    i = 0
     while final_total_risks[-1, -1] == 0:
+        # print(i)
+        i += 1
         current_node = find_current_node()
         update_tentative_risk(current_node)
         set_final_total_risk(current_node)
-    return final_total_risks[-1, -1]
+    return int(final_total_risks[-1, -1])
 
 
 local_risks = support.read_input(r'year_2021/input/15_chiton.txt', flavor='int_grid')
 local_risks = np.array([np.array(xi) for xi in local_risks])
 print(f'Part 1 answer: {dijkstra_algorithm(local_risks)}')
+
+
+def increase_risk(grid, increase_amount):
+    max_risk = 9
+    increase_grid = (grid + increase_amount) % max_risk
+    increase_grid = np.where(increase_grid == 0, max_risk, increase_grid)
+    return increase_grid
+    
+
+big_col = np.concatenate((local_risks,
+                          increase_risk(local_risks, 1),
+                          increase_risk(local_risks, 2),
+                          increase_risk(local_risks, 3),
+                          increase_risk(local_risks, 4)),
+                         axis=0)
+big_map = np.concatenate((big_col,
+                          increase_risk(big_col, 1),
+                          increase_risk(big_col, 2),
+                          increase_risk(big_col, 3),
+                          increase_risk(big_col, 4)),
+                         axis=1)
+
+print(f'Part 2 answer: {dijkstra_algorithm(big_map)}')
