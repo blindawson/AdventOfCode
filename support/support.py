@@ -51,5 +51,10 @@ def find_nearby_coordinates(grid):
             nearby_coordinates[x, y] = remove_out_of_bounds_coordinates(nearby_initial, grid)
     return nearby_coordinates
     
-test_input = read_input(r'year_2021/tests/test_inputs/15_test_input.txt', flavor='int_grid')
-find_nearby_coordinates(test_input)
+
+def hex_to_bin(hex, scale=16, num_bits=4):
+    return bin(int(hex, scale))[2:].zfill(num_bits*len(hex))
+
+
+def bin_to_dec(bin_input):
+    return int(bin_input, 2)
