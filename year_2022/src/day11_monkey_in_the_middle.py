@@ -27,19 +27,53 @@ def op(monkey, x):
     # ops = [x * 19, x + 6, x * x, x + 3]
     return ops[monkey]
 
+# Part 1
+# for _ in range(20):
+#     for index, row in df.iterrows():
+#         for i in items[index]:
+#             df.loc[index, "inspections"] += 1
+#             worry = op(index, i)
+#             worry = int(worry / 3)
+#             if worry % row["test div"] == 0:
+#                 receiving_monkey = row["if true monkey"]
+#             else:
+#                 receiving_monkey = row["if false monkey"]
+#             items[receiving_monkey] += [worry]
+#         items[index] = []
 
-for _ in range(20):
-    for index, row in df.iterrows():
-        for i in items[index]:
-            df.loc[index, "inspections"] += 1
-            worry = op(index, i)
-            worry = int(worry / 3)
-            if worry % row["test div"] == 0:
+# Part 2
+# table of residuals
+res = pd.DataFrame([], columns=df["test div"].values)
+# add rows to res
+r = 0
+# populate res and replace items with row number
+for i, x in enumerate(items):
+    for j, y in enumerate(x):
+        res.loc[r, :] = y % res.columns.values
+        items[i][j] = r
+        r += 1
+        
+# Loop 10000 rounds
+for r in range(10000):
+    if r % 100 == 0:
+        print(r)
+    # For each monkey
+    for monkey, row in df.iterrows():
+        # For each item the monkey has
+        for i in items[monkey]:
+            # Increment the inspection counter
+            df.loc[monkey, "inspections"] += 1
+            # Pull the item residuals
+            worry = res.loc[i, :]
+            # Update based on operation
+            worry = op(monkey, worry) % res.columns.values
+            # Reassign values to res table
+            res.loc[i, :] = worry
+            if worry[row["test div"]] == 0:
                 receiving_monkey = row["if true monkey"]
             else:
                 receiving_monkey = row["if false monkey"]
-            items[receiving_monkey] += [worry]
-        items[index] = []
-    # print(inputs)
-
-df
+            items[receiving_monkey] += [i]
+        items[monkey] = []
+        
+print(df['inspections'].sort_values())
