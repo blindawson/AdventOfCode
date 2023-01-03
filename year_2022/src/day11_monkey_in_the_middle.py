@@ -27,6 +27,7 @@ def op(monkey, x):
     # ops = [x * 19, x + 6, x * x, x + 3]
     return ops[monkey]
 
+
 # Part 1
 # for _ in range(20):
 #     for index, row in df.iterrows():
@@ -52,7 +53,7 @@ for i, x in enumerate(items):
         res.loc[r, :] = y % res.columns.values
         items[i][j] = r
         r += 1
-        
+
 # Loop 10000 rounds
 for r in range(10000):
     if r % 100 == 0:
@@ -75,5 +76,5 @@ for r in range(10000):
                 receiving_monkey = row["if false monkey"]
             items[receiving_monkey] += [i]
         items[monkey] = []
-        
-print(df['inspections'].sort_values())
+
+print(df["inspections"].sort_values())
