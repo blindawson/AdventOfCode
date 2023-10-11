@@ -1,0 +1,8 @@
+numpy
+pandas
+pathlib
+pytest
+black
+pylint
+flake8
+ipykernel
