@@ -1,105 +1,131 @@
 import numpy as np
-from puzzle_init import *
+import os
+import sys
+import pathlib
 
-class Node()
+project_dir = pathlib.Path.home() / "GitHub" / "AdventOfCode"
+os.chdir(project_dir)
+sys.path.append(str(project_dir))
+from year_2022.src.puzzle_init import *
 
 
-def dijkstra_algorithm(grid):
-    # Figure out which node to evaluate next
-    def find_current_node():
-        if (prelim_total_cost == np.zeros(grid_size)).all():
-            # Find start node
-            for ix, row in enumerate(grid):
-                for iy, i in enumerate(row):
-                    if i == "S":
-                        grid[ix, iy] = "a"
-                        return ix, iy
+class Node:
+    def __init__(self, y, x, letter):
+        self.x = x  # X location in grid
+        self.y = y  # Y location in grid
+        self.letter = letter  # Letter value of location
+        self.score = ord(letter)
+        self.nearby = []
+        self.cost0 = 0
+        self.cost1 = 0
+        self.visited = False
+
+    def accelerate(self, mph):
+        self.speed += mph
+
+    def brake(self, mph):
+        if self.speed > mph:
+            self.speed -= mph
         else:
-            # Find the node with the lowest total cost
-            min_cost = np.min(prelim_total_cost[np.nonzero(prelim_total_cost)])
-            min_cost_locs = np.where(prelim_total_cost == min_cost)
-            return min_cost_locs[0][0], min_cost_locs[1][0]
+            self.speed = 0
 
-    def update_prelim_cost(current_node):
-        # print(current_node)
-        current_cost = prelim_total_cost[current_node]
-        for adjacent in adjacent_coordinates[current_node]:
-            adj_x, adj_y = adjacent
-            if visited[adj_x, adj_y] == 0:
-                if prelim_total_cost[adj_x, adj_y] == 0:
-                    prelim_total_cost[adj_x, adj_y] = current_cost + 1
+    def __str__(self):
+        return f" Node at: {self.x}, {self.y}, {self.letter}. Nearby: {[(n.x, n.y) for n in self.nearby]}"
+
+
+class Dijkstra_grid:
+    def __init__(self, grid, part2=False):
+        self.grid = np.empty(grid.shape, dtype=object)
+        for y in range(self.grid.shape[0]):
+            for x in range(self.grid.shape[1]):
+                self.grid[y, x] = Node(y, x, grid[y][x])
+        self.current_node = self.find_current_node(find_letter="S")
+        self.current_node.score = ord("a")
+        self.end_node = self.find_current_node(find_letter="E")
+        self.end_node.score = ord("z")
+        self.find_reachable_coordinates()
+        self.path_length = self.find_path_length()
+        self.part2 = part2
+
+    def find_reachable_coordinates(self):
+        for y in range(self.grid.shape[0]):
+            for x in range(self.grid.shape[1]):
+                n = self.grid[y, x]
+                nearby_coordinates = [
+                    (n.y - 1, n.x),
+                    (n.y, n.x - 1),
+                    (n.y + 1, n.x),
+                    (n.y, n.x + 1),
+                ]
+                # Remove coordinates beyond the edges of the grid
+                nearby_coordinates = support.remove_out_of_bounds_coordinates(
+                    nearby_coordinates, self.grid
+                )
+                # Remove coordinates more than one level above current node
+                bad_coordinates = []
+                for coordinate in nearby_coordinates:
+                    if self.grid[coordinate].score - n.score > 1:
+                        bad_coordinates.append(coordinate)
+                [nearby_coordinates.remove(c) for c in bad_coordinates]
+                nearby_coordinates = [self.grid[c] for c in nearby_coordinates]
+                n.nearby = nearby_coordinates
+
+    def find_current_node(self, find_letter=None):
+        # Flatten the 2D array into a 1D array of node objects
+        flattened_array = self.grid.flatten()
+
+        if find_letter:
+            # Pull the letter attribute
+            letters = np.array([node.letter for node in flattened_array])
+
+            # Find the node with the minimum non-zero cost0 value
+            current_loc = np.where(letters == find_letter)[0][0]
+
+        else:
+            # Pull the cost0 attribute
+            cost0_values = np.array([node.cost0 for node in flattened_array])
+
+            # Filter out values that are equal to zero
+            non_zero_values = cost0_values[cost0_values != 0]
+
+            # Find the minimum non-zero 'cost0' value
+            min_cost0 = np.min(non_zero_values)
+
+            # Find the node with the minimum non-zero cost0 value
+            current_loc = np.where(cost0_values == min_cost0)[0][0]
+
+        # Convert the 1D index back to the 2D indices
+        current_loc_2d = np.unravel_index(current_loc, self.grid.shape)
+
+        # Get the node with the smallest cost0 attribute
+        return self.grid[current_loc_2d]
+
+    def update_cost0(self):
+        # print(self.current_node)
+        for adjacent in self.current_node.nearby:
+            if not adjacent.visited:
+                if adjacent.cost0 == 0:
+                    adjacent.cost0 = self.current_node.cost0 + 1
                 else:
-                    prelim_total_cost[adj_x, adj_y] = min(
-                        prelim_total_cost[adj_x, adj_y], current_cost + 1
-                    )
+                    adjacent.cost0 = min(adjacent.cost0, self.current_node.cost0 + 1)
+                if adjacent.score == ord("a"):
+                    adjacent.cost0 = 1
 
-    def set_final_total_cost(current_node):
-        final_total_cost[current_node] = prelim_total_cost[current_node]
-        visited[current_node] = 1
-        prelim_total_cost[current_node] = 0
+    def set_cost1(self):
+        self.current_node.cost1 = self.current_node.cost0
+        self.current_node.cost0 = 0
+        self.current_node.visited = True
 
-    def remove_out_of_reach_coordinates(current_node, nearby_coordinates, grid):
-        current_node_val = ord(grid[current_node[0]][current_node[1]])
-        bad_coordinates = []
-        for coordinate in nearby_coordinates:
-            coordinate_val = ord(grid[coordinate[0]][coordinate[1]])
-            if coordinate_val - current_node_val > 1:
-                bad_coordinates.append(coordinate)
-        [nearby_coordinates.remove(c) for c in bad_coordinates]
-        return nearby_coordinates
+    def find_path_length(self):
+        i = 0
+        while self.end_node.cost1 == 0:
+            i += 1
+            # print(i)
+            if i > 1:
+                self.current_node = self.find_current_node()
+            self.update_cost0()
+            self.set_cost1()
+        return int(self.end_node.cost1)
 
-    def find_nearby_reachable_coordinates(grid):
-        nearby_coordinates = np.zeros([len(grid), len(grid[0])], dtype=np.ndarray)
-        for x in range(len(grid)):
-            for y in range(len(grid[0])):
-                nearby_prelim_list = [[x - 1, y], [x, y - 1], [x + 1, y], [x, y + 1]]
-                nearby_prelim_list = support.remove_out_of_bounds_coordinates(
-                    nearby_prelim_list, grid
-                )
-                nearby_coordinates[x, y] = remove_out_of_reach_coordinates(
-                    [x, y], nearby_prelim_list, grid
-                )
-        return nearby_coordinates
-
-    def find_end_node(grid):
-        end_node = [
-            (ix, iy)
-            for ix, row in enumerate(grid)
-            for iy, i in enumerate(row)
-            if i == "E"
-        ][0]
-        grid[end_node[0]][end_node[1]] = "z"
-        return end_node
-
-    grid_size = [len(grid), len(grid[0])]
-    adjacent_coordinates = find_nearby_reachable_coordinates(grid)
-    prelim_total_cost = np.zeros(grid_size)
-    final_total_cost = np.zeros(grid_size)
-    visited = np.zeros(grid_size)
-
-    current_node = find_current_node()
-    end_node = find_end_node(grid)
-    adjacent_coordinates = find_nearby_reachable_coordinates(grid)
-    hill_map[current_node] = "S"
-
-    i = 0
-    while final_total_cost[end_node] == 0:
-        # print(i)
-        i += 1
-        current_node = find_current_node()
-        update_prelim_cost(current_node)
-        set_final_total_cost(current_node)
-    return int(final_total_cost[end_node])
-
-
-# hill_map = support.read_input(
-#     r"year_2022/tests/12_hill_climbing.txt", flavor="str_grid"
-# )
-# hill_map = np.array([np.array(xi) for xi in hill_map])
-# print(f"Part 1 answer: {dijkstra_algorithm(hill_map)}")
-
-hill_map = support.read_input(
-    r"year_2022/input/12_hill_climbing.txt", flavor="str_grid"
-)
-hill_map = np.array([np.array(xi) for xi in hill_map])
-print(f"Part 1 answer: {dijkstra_algorithm(hill_map)}")
+    def print_path(self):
+        print(np.array([[node.cost1 for node in row] for row in d.grid]))
