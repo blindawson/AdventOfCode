@@ -1,12 +1,5 @@
 import numpy as np
-import os
-import sys
-import pathlib
-
-project_dir = pathlib.Path.home() / "GitHub" / "AdventOfCode"
-os.chdir(project_dir)
-sys.path.append(str(project_dir))
-from year_2022.src.puzzle_init import *
+from AdventOfCode.support import support
 
 
 class Node:
@@ -44,8 +37,8 @@ class Dijkstra_grid:
         self.end_node = self.find_current_node(find_letter="E")
         self.end_node.score = ord("z")
         self.find_reachable_coordinates()
-        self.path_length = self.find_path_length()
         self.part2 = part2
+        self.path_length = self.find_path_length()
 
     def find_reachable_coordinates(self):
         for y in range(self.grid.shape[0]):
@@ -108,7 +101,7 @@ class Dijkstra_grid:
                     adjacent.cost0 = self.current_node.cost0 + 1
                 else:
                     adjacent.cost0 = min(adjacent.cost0, self.current_node.cost0 + 1)
-                if adjacent.score == ord("a"):
+                if self.part2 and adjacent.score == ord("a"):
                     adjacent.cost0 = 1
 
     def set_cost1(self):
@@ -128,4 +121,11 @@ class Dijkstra_grid:
         return int(self.end_node.cost1)
 
     def print_path(self):
-        print(np.array([[node.cost1 for node in row] for row in d.grid]))
+        print(np.array([[node.cost1 for node in row] for row in self.grid]))
+
+hill_map = support.read_input(
+    r"year_2022/tests/12_hill_climbing.txt", flavor="str_grid"
+)
+hill_map = np.array([np.array(xi) for xi in hill_map])
+d = Dijkstra_grid(hill_map)
+d.print_path()
