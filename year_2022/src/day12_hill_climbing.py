@@ -13,15 +13,6 @@ class Node:
         self.cost1 = 0
         self.visited = False
 
-    def accelerate(self, mph):
-        self.speed += mph
-
-    def brake(self, mph):
-        if self.speed > mph:
-            self.speed -= mph
-        else:
-            self.speed = 0
-
     def __str__(self):
         return f" Node at: {self.x}, {self.y}, {self.letter}. Nearby: {[(n.x, n.y) for n in self.nearby]}"
 
@@ -122,10 +113,3 @@ class Dijkstra_grid:
 
     def print_path(self):
         print(np.array([[node.cost1 for node in row] for row in self.grid]))
-
-hill_map = support.read_input(
-    r"year_2022/tests/12_hill_climbing.txt", flavor="str_grid"
-)
-hill_map = np.array([np.array(xi) for xi in hill_map])
-d = Dijkstra_grid(hill_map)
-d.print_path()
