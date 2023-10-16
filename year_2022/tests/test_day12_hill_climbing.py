@@ -6,7 +6,7 @@ from AdventOfCode.support import support
 
 def test_sample_inputs():
     hill_map = support.read_input(
-        r"year_2022/tests/12_hill_climbing.txt", flavor="str_grid"
+        r"year_2022/tests/test_inputs/12_hill_climbing.txt", flavor="str_grid"
     )
     hill_map = np.array([np.array(xi) for xi in hill_map])
     d = d12.Dijkstra_grid(hill_map)
@@ -23,7 +23,7 @@ def test_part1():
 
 def test_sample_inputs_part2():
     hill_map = support.read_input(
-        r"year_2022/tests/12_hill_climbing.txt", flavor="str_grid"
+        r"year_2022/tests/test_inputs/12_hill_climbing.txt", flavor="str_grid"
     )
     hill_map = np.array([np.array(xi) for xi in hill_map])
     d = d12.Dijkstra_grid(hill_map, part2=True)
