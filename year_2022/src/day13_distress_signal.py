@@ -3,7 +3,7 @@ from AdventOfCode.support import support
 
 
 class PacketPair:
-    def __init__(self, packet1, packet2, packet_index):
+    def __init__(self, packet1, packet2, packet_index=0):
         self.packet1 = packet1
         self.packet2 = packet2
         self.packet_index = packet_index
@@ -56,3 +56,25 @@ def right_order_sum(input_filename):
             right_order_index.append(p.packet_index)
     print(right_order_index)
     return sum(right_order_index)
+
+
+def order_all(input_filename):
+    signal_inputs = support.read_input(input_filename)
+    packets = [[[2]], [[6]]]
+    for packet in signal_inputs:
+        if packet:
+            packets.append(eval(packet))
+
+    # Bubble sort
+    n = len(packets)
+    for i in range(n - 1):
+        for j in range(0, n - i - 1):
+            # print(packets[i], packets[i+1])
+            p = PacketPair(packets[j], packets[j + 1])
+            if not p.right_order:
+                packets[j], packets[j + 1] = packets[j + 1], packets[j]
+    return packets
+
+
+filename = r"year_2022/tests/test_inputs/13_test_input.txt"
+packets = order_all(filename)
