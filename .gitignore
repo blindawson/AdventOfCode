@@ -3,3 +3,4 @@
 venv/*
 *egg-info*
 year_2022/src/tempCodeRunnerFile.py
+.vscode/*
