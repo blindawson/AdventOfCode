@@ -2,14 +2,14 @@ import numpy as np
 
 
 def create_files(year, day, name):
-    input_file = f"{year}/input/{day}_{name}.txt"
-    src_file = f"{year}/src/day{day}_{name}.py"
-    test_file = f"{year}/tests/test_day{day}_{name}.py"
-    test_input_file = f"{year}/tests/test_inputs/{day}_test_input.txt"
-    i = open(input_file, "x")
-    s = open(src_file, "x")
-    t = open(test_file, "x")
-    ti = open(test_input_file, "x")
+    input_file = f"year_{year}/input/{day}_{name}.txt"
+    src_file = f"year_{year}/src/day{day}_{name}.py"
+    test_file = f"year_{year}/tests/test_day{day}_{name}.py"
+    test_input_file = f"year_{year}/tests/test_inputs/{day}_test_input.txt"
+    open(input_file, "x")
+    open(src_file, "x")
+    open(test_file, "x")
+    open(test_input_file, "x")
 
 
 def read_input(filename, flavor=None, split_char=None):
