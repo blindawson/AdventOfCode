@@ -3,16 +3,14 @@ import numpy as np
 
 def create_files(year, day, name):
     input_filename = f"year_{year}/input/{day}_{name}.txt"
-    src_filename = f"year_{year}/src/day{day}_{name}.py"
-    test_filename = f"year_{year}/tests/test_day{day}_{name}.py"
-    test_input_filename = f"year_{year}/tests/test_inputs/{day}_test_input.txt"
-    
     open(input_filename, "x")
-    
+
+    src_filename = f"year_{year}/src/day{day}_{name}.py"
     src_file = open(src_filename, "w")
     src_file.write("from AdventOfCode.support import support\n\n")
     src_file.close()
-    
+
+    test_filename = f"year_{year}/tests/test_day{day}_{name}.py"
     test_file = open(test_filename, "w")
     test_file.write(
         f"from AdventOfCode.year_{year}.src import day{day}_{name} as d{day}\n\n\n"
@@ -30,7 +28,8 @@ def create_files(year, day, name):
         + f"\tassert d{day}.func(filename) == 99\n"
     )
     test_file.close()
-    
+
+    test_input_filename = f"year_{year}/tests/test_inputs/{day}_test_input.txt"
     open(test_input_filename, "x")
 
 
