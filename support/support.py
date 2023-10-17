@@ -2,14 +2,36 @@ import numpy as np
 
 
 def create_files(year, day, name):
-    input_file = f"year_{year}/input/{day}_{name}.txt"
-    src_file = f"year_{year}/src/day{day}_{name}.py"
-    test_file = f"year_{year}/tests/test_day{day}_{name}.py"
-    test_input_file = f"year_{year}/tests/test_inputs/{day}_test_input.txt"
-    open(input_file, "x")
-    open(src_file, "x")
-    open(test_file, "x")
-    open(test_input_file, "x")
+    input_filename = f"year_{year}/input/{day}_{name}.txt"
+    src_filename = f"year_{year}/src/day{day}_{name}.py"
+    test_filename = f"year_{year}/tests/test_day{day}_{name}.py"
+    test_input_filename = f"year_{year}/tests/test_inputs/{day}_test_input.txt"
+    
+    open(input_filename, "x")
+    
+    src_file = open(src_filename, "w")
+    src_file.write("from AdventOfCode.support import support\n\n")
+    src_file.close()
+    
+    test_file = open(test_filename, "w")
+    test_file.write(
+        f"from AdventOfCode.year_{year}.src import day{day}_{name} as d{day}\n\n\n"
+        + "def test_example():\n"
+        + f"\tfilename = r'year_{year}/tests/test_inputs/{day}_test_input.txt'\n"
+        + f"\tassert d{day}.func(filename) == 99\n\n\n"
+        + "def test_part1():\n"
+        + f"\tfilename = r'year_{year}/input/{day}_{name}.txt'\n"
+        + f"\tassert d{day}.func(filename) == 99\n\n\n"
+        + "def test_example_part2():\n"
+        + f"\tfilename = r'year_{year}/tests/test_inputs/{day}_test_input.txt'\n"
+        + f"\tassert d{day}.func(filename) == 99\n\n\n"
+        + "def test_part2():\n"
+        + f"\tfilename = r'year_{year}/input/{day}_{name}.txt'\n"
+        + f"\tassert d{day}.func(filename) == 99\n"
+    )
+    test_file.close()
+    
+    open(test_input_filename, "x")
 
 
 def read_input(filename, flavor=None, split_char=None):
