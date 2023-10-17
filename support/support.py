@@ -2,12 +2,30 @@ import numpy as np
 
 
 def create_files(year, day, name):
+    """Create the input, src, and test files you need for
+    another day of Advent of Code
+
+    Parameters
+    ----------
+    year : int
+        The year of the puzzle.
+    day : int
+        The day of the puzzle.
+    name : str
+        The name of the puzzle.
+    """
     input_filename = f"year_{year}/input/{day}_{name}.txt"
     open(input_filename, "x")
 
     src_filename = f"year_{year}/src/day{day}_{name}.py"
     src_file = open(src_filename, "w")
-    src_file.write("from AdventOfCode.support import support\n\n")
+    src_file.write(
+        "from AdventOfCode.support import support\n\n\n"
+        + "class ClassName:\n"
+        + "\tdef __init__(self, filename):\n"
+        + "\t\tself.file_input = support.read_input(\n"
+        + "filename, flavor=None, split_char=None)\n"
+    )
     src_file.close()
 
     test_filename = f"year_{year}/tests/test_day{day}_{name}.py"
