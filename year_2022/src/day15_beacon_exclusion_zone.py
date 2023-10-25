@@ -61,26 +61,34 @@ class BeaconZone:
                     ):
                         # Combine the ranges
                         ranges_to_remove.append(existing_range)
-                        sensor_range_on_row = (existing_range[0], sensor_range_on_row[1])
+                        sensor_range_on_row = (
+                            existing_range[0],
+                            sensor_range_on_row[1],
+                        )
                     # If new range overlaps with existing range
                     elif (existing_range[0] >= sensor_range_on_row[0]) and (
                         existing_range[0] <= sensor_range_on_row[1]
                     ):
                         # Combine the ranges
                         ranges_to_remove.append(existing_range)
-                        sensor_range_on_row = (sensor_range_on_row[0], existing_range[1])
+                        sensor_range_on_row = (
+                            sensor_range_on_row[0],
+                            existing_range[1],
+                        )
                 for range in ranges_to_remove:
                     ranges.remove(range)
                 if add_new_range:
                     ranges.append(sensor_range_on_row)
-        
+
         sum_ranges = 0
+        if len(ranges) > 1:
+            if ranges[1][0] - ranges[0][1] > 1:
+                self.distress_beacon = (row, ranges[0][1] + 1)
+                print(self.distress_beacon)
         for range in ranges:
-            print(range)
             sum_ranges += range[1] - range[0] + 1
         sum_ranges -= self.beacons_and_sensors(row)
         return sum_ranges
-                    
 
     # Find the range that the sensor can scan on a given row
     def find_range_on_row(self, sensor, row):
@@ -93,13 +101,16 @@ class BeaconZone:
             return (sensor[1] - x_range, sensor[1] + x_range)
         else:
             return None
-            
+
     def beacons_and_sensors(self, row):
         on_row = 0
-        for i in (self.sensors + self.beacons):
+        for i in self.sensors + self.beacons:
             if i[0] == row:
                 on_row += 1
         return on_row
+        
+    def tuning_frequency(self, y, x):
+        return x * 4000000 + y
 
     # def plot(self):
     #     # Create a mapping of unique strings to numerical values
