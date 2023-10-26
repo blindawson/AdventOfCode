@@ -2,6 +2,10 @@ import numpy as np
 import re
 from itertools import permutations
 
+# correct_path = ["DD", "BB", "JJ", "HH", "EE", "CC"] # optimal path
+# correct_path = ["BB", "CC", "DD", "EE", "HH", "JJ"] # input path
+# correct_path = ["DD", "BB", "EE", "HH", "JJ", "CC"] # close to optimal but wrong output
+correct_path = ["EE", "JJ", "CC", "DD", "BB", "HH"] # seems like if ee is in front of j it's wrong
 
 class Valve:
     def __init__(self, name, flow_rate, adjacent_valves):
@@ -9,9 +13,10 @@ class Valve:
         self.flow_rate = flow_rate
         self.adjacent_valves = adjacent_valves
         self.distance_to_valves = {}
+        self.open = False
 
     def __repr__(self) -> str:
-        return f"{self.name}: {self.flow_rate}, {self.distance_to_valves}"
+        return f"{self.name}: {self.open}"
 
 
 class Volcano:
@@ -68,17 +73,26 @@ class Volcano:
             if valve.name == valve_name:
                 return valve
 
+    def closed_valves(self):
+        return [
+            v.find_valve(x)
+            for x in correct_path
+            if not v.find_valve(x).open
+        ]
+        # return [v for v in self.flow_valves if not v.open]
+
     def explore_path(self, closed_valves, current_valve, time=30, pressure=0):
         if not closed_valves:
             self.max_pressure = max(self.max_pressure, pressure)
         else:
             for next_valve in closed_valves:
+                next_valve.open = True
+                remaining_valves = self.closed_valves()
                 remaining_time = (
                     time - current_valve.distance_to_valves[next_valve.name] - 1
                 )
 
                 if remaining_time > 2:
-                    remaining_valves = [v for v in closed_valves if v != next_valve]
                     new_pressure = pressure + next_valve.flow_rate * remaining_time
                     self.explore_path(
                         closed_valves=remaining_valves,
@@ -86,52 +100,38 @@ class Volcano:
                         time=remaining_time,
                         pressure=new_pressure,
                     )
+                    next_valve.open = False
+                    a = 1
                 else:
                     self.max_pressure = max(self.max_pressure, pressure)
 
-    def explore_path_part2(
-        self,
-        closed_valves,
-        current_valve1,
-        current_valve2,
-        time1=26,
-        time2=26,
-        pressure=0,
-    ):
-        if not closed_valves:
-            self.max_pressure = max(self.max_pressure, pressure)
-        else:
-            for i in range(len(closed_valves) - 1, 2):
-                next_valve1 = closed_valves[i]
-                next_valve2 = closed_valves[i + 1]
-
-                remaining_time1 = (
-                    time1 - current_valve1.distance_to_valves[next_valve1.name] - 1
-                )
-                remaining_time2 = (
-                    time1 - current_valve1.distance_to_valves[next_valve1.name] - 1
-                )
-                remaining_valves = [
-                    v for v in closed_valves if v not in [next_valve1, next_valve2]
-                ]
-
-                if remaining_time1 > 2:
-                    new_pressure = pressure + next_valve1.flow_rate * remaining_time1
-                if remaining_time2 > 2:
-                    new_pressure = pressure + next_valve1.flow_rate * remaining_time1
-
-                    self.explore_path_part2(
-                        closed_valves=remaining_valves,
-                        current_valve=next_valve1,
-                        time=remaining_time1,
-                        pressure=new_pressure,
-                    )
-                else:
-                    self.max_pressure = max(self.max_pressure, pressure)
+    # def explore_path_part2(
+    #     self,
+    #     closed_valves,
+    #     current_valve1,
+    #     current_valve2,
+    #     time1=26,
+    #     time2=26,
+    #     pressure=0,
+    # ):
+    #     if not closed_valves:
+    #         self.max_pressure = max(self.max_pressure, pressure)
+    #     else:
+    #         max_time = max(time1, time2)
+    #         if time1 == max_time:
+    #             for next_valve in closed_valves:
+    #                 remaining_valves = [v for v in closed_valves if v != next_valve]
+    #                 remaining_time = (
+    #                     time - current_valve.distance_to_valves[next_valve.name] - 1
+    #                 )
 
 
-# filename = r"year_2022/tests/test_inputs/16_test_input.txt"
-filename = r"year_2022/input/16_proboscidea_volcanium.txt"
+filename = r"year_2022/tests/test_inputs/16_test_input.txt"
+# filename = r"year_2022/input/16_proboscidea_volcanium.txt"
 v = Volcano(filename)
 current_valve = v.find_valve("AA")
-v.explore_path(v.flow_valves, current_valve)
+# v.explore_path(v.flow_valves, current_valve)
+v.explore_path(
+    [v.find_valve(x) for x in correct_path], current_valve
+)
+v.max_pressure
