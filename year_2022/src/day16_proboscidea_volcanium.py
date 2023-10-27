@@ -37,12 +37,6 @@ class Volcano:
         self.elephant2 = elephant2
         elephant1.current_valve = self.find_valve("AA")
         elephant2.current_valve = self.find_valve("AA")
-        # self.correct_path = [
-        #     self.find_valve(x) for x in ["DD", "BB", "JJ", "HH", "EE", "CC"]
-        # ]
-        self.correct_path = [
-            self.find_valve(x) for x in ["DD", "JJ", "BB", "HH", "CC", "EE"]
-        ]
 
     def read_input(self):
         # Read input file with regular expression
@@ -89,71 +83,49 @@ class Volcano:
             if valve.name == valve_name:
                 return valve
 
-    def remaining_valves(self, current_valve, time):
+    def remaining_valves(self, elephant):
         remaining_valves = []
         for v in self.flow_valves:
             if not v.open:
-                if current_valve.distance_to_valves[v.name] < time:
+                if (
+                    elephant.current_valve.distance_to_valves[v.name] + 2
+                    <= elephant.time
+                ):
                     remaining_valves.append(v)
         return remaining_valves
-        # return [v for v in self.correct_path if not v.open]
 
     def open_valve(self, elephant, pressure, next_valve):
-        # Move to next valve
-        lost_time = elephant.current_valve.distance_to_valves[next_valve.name]
+        # Move to next valve and open it
+        lost_time = elephant.current_valve.distance_to_valves[next_valve.name] + 1
         elephant.time -= lost_time
+        next_valve.open = True
         previous_valve = elephant.current_valve.name
         elephant.current_valve = next_valve
+        new_pressure = pressure + next_valve.flow_rate * elephant.time
+        self.max_pressure = max(self.max_pressure, new_pressure)
 
         # If there is time, keep going
-        if elephant.time >= 2:
-            next_valve.open = True
-            next_valve.visited += 1
-            elephant.time -= 1
-            new_pressure = pressure + next_valve.flow_rate * elephant.time
+        remaining_valves = self.remaining_valves(elephant)
+        if remaining_valves:
             self.explore_path(
-                closed_valves=self.remaining_valves(elephant.current_valve, elephant.time),
-                pressure=new_pressure,
+                closed_valves=remaining_valves, pressure=new_pressure, elephant=elephant
             )
 
-            # Move back up the tree
-            elephant.time += lost_time + 1
-            elephant.current_valve = self.find_valve(previous_valve)
-            next_valve.open = False
+        # Move back up the tree
+        if self.part2 and (elephant != self.elephant2):
+            remaining_valves2 = self.remaining_valves(self.elephant2)
+            if remaining_valves2:
+                self.explore_path(
+                    closed_valves=remaining_valves2,
+                    pressure=new_pressure,
+                    elephant=self.elephant2,
+                )
+        elephant.time += lost_time
+        elephant.current_valve = self.find_valve(previous_valve)
+        next_valve.open = False
 
-        else:
-            elephant.time += lost_time
-            elephant.current_valve = self.find_valve(previous_valve)
-            self.max_pressure = max(self.max_pressure, pressure)
-
-    def explore_path(self, closed_valves, pressure=0):
-        if not closed_valves:
-            self.max_pressure = max(self.max_pressure, pressure)
-        else:
-            for next_valve in closed_valves:
-                if self.part2 and (self.elephant1.time >= self.elephant2.time):
-                    self.open_valve(self.elephant1, pressure, next_valve)
-                else:
-                    self.open_valve(self.elephant2, pressure, next_valve)
-                    
-    def explore_path_part2(self, closed_valves, pressure=0):
-        if not closed_valves:
-            self.max_pressure = max(self.max_pressure, pressure)
-        else:
-            for next_valve in closed_valves:
-                if self.part2 and (self.elephant1.time >= self.elephant2.time):
-                    self.open_valve(self.elephant1, pressure, next_valve)
-                else:
-                    self.open_valve(self.elephant2, pressure, next_valve)
-
-
-filename = r"year_2022/tests/test_inputs/16_test_input.txt"
-# filename = r"year_2022/input/16_proboscidea_volcanium.txt"
-
-# Part 1
-# v = Volcano(filename, Elephant(), Elephant())
-# v.explore_path_part2(v.flow_valves)
-
-# Part 2
-# v = Volcano(filename, Elephant(time=26), Elephant(time=26), part2=True)
-# v.explore_path(v.correct_path)
+    def explore_path(self, closed_valves, pressure=0, elephant=None):
+        if not elephant:
+            elephant = self.elephant1
+        for next_valve in closed_valves:
+            self.open_valve(elephant, pressure, next_valve)

@@ -30,5 +30,4 @@ def test_part2():
     v = d16.Volcano(filename, d16.Elephant(time=26), d16.Elephant(time=26), part2=True)
     v.explore_path(v.flow_valves)
     print([x.visited for x in v.flow_valves])
-    assert v.max_pressure == 2453
-    # 2453 too low
+    assert v.max_pressure == 2576
