@@ -21,10 +21,17 @@ def test_example_part2():
     filename = r"year_2022/tests/test_inputs/16_test_input.txt"
     v = d16.Volcano(filename)
     current_valve = v.find_valve("AA")
-    v.explore_path_part2(v.flow_valves, current_valve, time=26)
+    v.explore_path_part2(
+        v.flow_valves, current_valve1=current_valve, current_valve2=current_valve
+    )
     assert v.max_pressure == 1707
 
 
 def test_part2():
     filename = r"year_2022/input/16_proboscidea_volcanium.txt"
-    assert d16.func(filename) == 99
+    v = d16.Volcano(filename)
+    current_valve = v.find_valve("AA")
+    v.explore_path_part2(
+        v.flow_valves, current_valve1=current_valve, current_valve2=current_valve
+    )
+    assert v.max_pressure == 1707

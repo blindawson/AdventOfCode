@@ -9,6 +9,7 @@ class Valve:
         self.adjacent_valves = adjacent_valves
         self.distance_to_valves = {}
         self.open = False
+        self.visited = 0
 
     def __repr__(self) -> str:
         return f"{self.name}: {self.open}"
@@ -70,31 +71,34 @@ class Volcano:
 
     def closed_valves(self):
         return [v for v in self.flow_valves if not v.open]
+        
+    def open_valve(self, time, pressure, current_valve, next_valve):
+            next_valve.open = True
+            remaining_valves = self.closed_valves()
+            remaining_time = (
+                time - current_valve.distance_to_valves[next_valve.name] - 1
+            )
+
+            if remaining_time > 2:
+                new_pressure = pressure + next_valve.flow_rate * remaining_time
+                self.explore_path(
+                    closed_valves=remaining_valves,
+                    current_valve=next_valve,
+                    time=remaining_time,
+                    pressure=new_pressure,
+                )
+                next_valve.open = False
+                a = 1
+            else:
+                next_valve.open = False
+                self.max_pressure = max(self.max_pressure, pressure)
 
     def explore_path(self, closed_valves, current_valve, time=30, pressure=0):
         if not closed_valves:
             self.max_pressure = max(self.max_pressure, pressure)
         else:
             for next_valve in closed_valves:
-                next_valve.open = True
-                remaining_valves = self.closed_valves()
-                remaining_time = (
-                    time - current_valve.distance_to_valves[next_valve.name] - 1
-                )
-
-                if remaining_time > 2:
-                    new_pressure = pressure + next_valve.flow_rate * remaining_time
-                    self.explore_path(
-                        closed_valves=remaining_valves,
-                        current_valve=next_valve,
-                        time=remaining_time,
-                        pressure=new_pressure,
-                    )
-                    next_valve.open = False
-                    a = 1
-                else:
-                    next_valve.open = False
-                    self.max_pressure = max(self.max_pressure, pressure)
+                self.open_valve(time, pressure, current_valve, next_valve)
 
     def explore_path_part2(
         self,
@@ -108,18 +112,19 @@ class Volcano:
         if not closed_valves:
             self.max_pressure = max(self.max_pressure, pressure)
         else:
-            max_time = max(time1, time2)
-            if time1 == max_time:
+            if time1 >= time2:
                 for next_valve in closed_valves:
+                    print(f"Person going to {next_valve.name}")
                     next_valve.open = True
+                    next_valve.visited += 1
                     remaining_valves = self.closed_valves()
                     remaining_time = (
                         time1 - current_valve1.distance_to_valves[next_valve.name] - 1
                     )
-                    
+
                     if remaining_time > 2:
                         new_pressure = pressure + next_valve.flow_rate * remaining_time
-                        self.explore_path(
+                        self.explore_path_part2(
                             closed_valves=remaining_valves,
                             current_valve1=next_valve,
                             current_valve2=current_valve2,
@@ -127,20 +132,52 @@ class Volcano:
                             time2=time2,
                             pressure=new_pressure,
                         )
+                        print(f"Person leaving {next_valve.name}")
                         next_valve.open = False
                     else:
+                        print(f"Person leaving {next_valve.name}")
                         next_valve.open = False
                         self.max_pressure = max(self.max_pressure, pressure)
 
-                   
+            else:
+                for next_valve in closed_valves:
+                    print(f"Elephant going to {next_valve.name}")
+                    next_valve.open = True
+                    next_valve.visited += 1
+                    remaining_valves = self.closed_valves()
+                    remaining_time = (
+                        time2 - current_valve2.distance_to_valves[next_valve.name] - 1
+                    )
+
+                    if remaining_time > 2:
+                        new_pressure = pressure + next_valve.flow_rate * remaining_time
+                        self.explore_path_part2(
+                            closed_valves=remaining_valves,
+                            current_valve1=current_valve1,
+                            current_valve2=next_valve,
+                            time1=time1,
+                            time2=remaining_time,
+                            pressure=new_pressure,
+                        )
+                        print(f"Elephant leaving {next_valve.name}")
+                        next_valve.open = False
+                    else:
+                        print(f"Elephant leaving {next_valve.name}")
+                        next_valve.open = False
+                        self.max_pressure = max(self.max_pressure, pressure)
 
 
 filename = r"year_2022/tests/test_inputs/16_test_input.txt"
 # filename = r"year_2022/input/16_proboscidea_volcanium.txt"
 v = Volcano(filename)
 current_valve = v.find_valve("AA")
-v.explore_path(v.flow_valves, current_valve)
+# v.explore_path(v.flow_valves, current_valve)
 
 # correct_path = [v.find_valve(x) for x in ["DD", "BB", "JJ", "HH", "EE", "CC"]]
 # v.explore_path(correct_path, current_valve)
-v.max_pressure
+
+v.explore_path_part2(
+    v.flow_valves, current_valve1=current_valve, current_valve2=current_valve
+)
+print(v.max_pressure)
+[x.visited for x in v.flow_valves]
