@@ -25,7 +25,9 @@ class Elephant:
 
 
 class Volcano:
-    def __init__(self, filename, elephant1, elephant2, part2=False):
+    def __init__(
+        self, filename, elephant1, elephant2, part2=False, silver_medal_pressure=0
+    ):
         self.part2 = part2
         self.all_valves = []
         self.flow_valves = []
@@ -33,6 +35,7 @@ class Volcano:
         self.read_input()
         self.floyd_warshall_distance()
         self.max_pressure = 0
+        self.silver_medal_pressure = silver_medal_pressure
         self.elephant1 = elephant1
         self.elephant2 = elephant2
         elephant1.current_valve = self.find_valve("AA")
@@ -102,7 +105,9 @@ class Volcano:
         previous_valve = elephant.current_valve.name
         elephant.current_valve = next_valve
         new_pressure = pressure + next_valve.flow_rate * elephant.time
-        self.max_pressure = max(self.max_pressure, new_pressure)
+        if new_pressure > self.max_pressure:
+            self.max_pressure = new_pressure
+            self.best_path_valves = [v.name for v in self.flow_valves if v.open]
 
         # If there is time, keep going
         remaining_valves = self.remaining_valves(elephant)
@@ -112,14 +117,16 @@ class Volcano:
             )
 
         # Move back up the tree
-        if self.part2 and (elephant != self.elephant2):
-            remaining_valves2 = self.remaining_valves(self.elephant2)
-            if remaining_valves2:
-                self.explore_path(
-                    closed_valves=remaining_valves2,
-                    pressure=new_pressure,
-                    elephant=self.elephant2,
-                )
+        if self.part2:
+            if new_pressure >= self.silver_medal_pressure:
+                if elephant != self.elephant2:
+                    remaining_valves2 = self.remaining_valves(self.elephant2)
+                    if remaining_valves2:
+                        self.explore_path(
+                            closed_valves=remaining_valves2,
+                            pressure=new_pressure,
+                            elephant=self.elephant2,
+                        )
         elephant.time += lost_time
         elephant.current_valve = self.find_valve(previous_valve)
         next_valve.open = False
@@ -129,3 +136,29 @@ class Volcano:
             elephant = self.elephant1
         for next_valve in closed_valves:
             self.open_valve(elephant, pressure, next_valve)
+
+
+def part2(filename):
+    # Single elephant
+    v = Volcano(filename, Elephant(time=26), Elephant(time=26))
+    v.explore_path(v.flow_valves)
+    best_path_valves = v.best_path_valves
+
+    # Single elephant
+    v = Volcano(filename, Elephant(time=26), Elephant(time=26))
+    # Remove valves from best path
+    for valve_name in best_path_valves:
+        v.flow_valves.remove(v.find_valve(valve_name))
+    v.explore_path(v.flow_valves)
+    silver_medal_pressure = v.max_pressure
+
+    # Double elephant
+    v = Volcano(
+        filename,
+        Elephant(time=26),
+        Elephant(time=26),
+        part2=True,
+        silver_medal_pressure=silver_medal_pressure,
+    )
+    v.explore_path(v.flow_valves)
+    return v.max_pressure
