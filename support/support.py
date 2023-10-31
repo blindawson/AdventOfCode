@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def create_files(year, day, name):
+def create_files(year: int, day: int, name: str):
     """Create the input, src, and test files you need for
     another day of Advent of Code
 
