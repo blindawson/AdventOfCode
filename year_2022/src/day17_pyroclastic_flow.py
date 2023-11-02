@@ -1,5 +1,5 @@
 from AdventOfCode.support import support
-import copy
+import numpy as np
 
 
 class Tetris:
@@ -7,7 +7,7 @@ class Tetris:
         self.wind_pattern = support.read_input(filename, flavor=None, split_char=None)[
             0
         ]
-        self.landed_blocks = {x: 0 for x in range(9)}
+        self.landed_blocks = {x: [0] for x in range(1, 8)}
         self.side_chamber = [0, 8]
         self.wind_index = 0
         self.block_index = 0
@@ -44,7 +44,7 @@ class Tetris:
 
     def add_block(self):
         landed_ele = self.max_landed_ele()
-        print(self.landed_blocks)
+        # print(self.landed_blocks)
         move_vector = (3, landed_ele + 4)
         if self.block_index < len(self.falling_blocks):
             new_block = self.falling_blocks[self.block_index].copy()
@@ -57,12 +57,19 @@ class Tetris:
     def update_landed(self, block: list[tuple[int, int]]):
         for b in block:
             x, y = b[0], b[1]
-            self.landed_blocks[x] = max(self.landed_blocks[x], y)
+            self.landed_blocks[x] += [y]
+        floor = np.inf
+        for column_values in self.landed_blocks.values():
+            top_col = max(column_values)
+            floor = min(floor, top_col)
+        self.landed_blocks = {
+            key: [value for value in values if value >= floor]
+            for key, values in self.landed_blocks.items()
+        }
 
     def max_landed_ele(self):
-        if max(self.landed_blocks.values()) == 78:
-            a = 1
-        return max(self.landed_blocks.values())
+        max_values = [max(x) for x in self.landed_blocks.values()]
+        return max(max_values)
 
     def move_block(
         self, block: list[tuple[int, int]], direction: str
@@ -75,17 +82,20 @@ class Tetris:
         blocked = False
         landed = False
         for b in new_position:
-            # Check out of bounds left/right
-            for x in self.side_chamber:
-                if b[0] == x:
-                    blocked = True
+            # Check hitting side of chamber
+            if direction != "d":
+                for x in self.side_chamber:
+                    if b[0] == x:
+                        blocked = True
+                        break
+                if not blocked:
+                    if b[1] in self.landed_blocks[b[0]]:
+                        blocked = True
+                        break
             # Check hitting other block
-            print(b)
-            if b[1] < 0:
-                a = 1
-            if b[1] == self.landed_blocks[b[0]]:
-                blocked = True
-                if direction == "d":
+            else:
+                if b[1] in self.landed_blocks[b[0]]:
+                    blocked = True
                     landed = True
                     break
 
@@ -102,9 +112,10 @@ class Tetris:
                 b, landed = self.move_block(b, wind)
                 b, landed = self.move_block(b, "d")
             self.update_landed(b)
+            print(self.landed_blocks)
         return self.max_landed_ele()
 
 
-filename = r'year_2022/tests/test_inputs/17_test_input.txt'
+filename = r"year_2022/tests/test_inputs/17_test_input.txt"
 t = Tetris(filename)
 t.drop_blocks(2022)
