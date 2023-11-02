@@ -7,7 +7,7 @@ class Tetris:
         self.wind_pattern = support.read_input(filename, flavor=None, split_char=None)[
             0
         ]
-        self.landed_blocks = [(x, 0) for x in range(7)]
+        self.landed_blocks = {x: 0 for x in range(9)}
         self.side_chamber = [0, 8]
         self.wind_index = 0
         self.block_index = 0
@@ -44,6 +44,7 @@ class Tetris:
 
     def add_block(self):
         landed_ele = self.max_landed_ele()
+        print(self.landed_blocks)
         move_vector = (3, landed_ele + 4)
         if self.block_index < len(self.falling_blocks):
             new_block = self.falling_blocks[self.block_index].copy()
@@ -53,8 +54,15 @@ class Tetris:
         self.block_index = 0
         return self.add_block()
 
+    def update_landed(self, block: list[tuple[int, int]]):
+        for b in block:
+            x, y = b[0], b[1]
+            self.landed_blocks[x] = max(self.landed_blocks[x], y)
+
     def max_landed_ele(self):
-        return max([b[1] for b in self.landed_blocks])
+        if max(self.landed_blocks.values()) == 78:
+            a = 1
+        return max(self.landed_blocks.values())
 
     def move_block(
         self, block: list[tuple[int, int]], direction: str
@@ -72,11 +80,14 @@ class Tetris:
                 if b[0] == x:
                     blocked = True
             # Check hitting other block
-            for i in self.landed_blocks:
-                if b == i:
-                    blocked = True
-                    if direction == "d":
-                        landed = True
+            print(b)
+            if b[1] < 0:
+                a = 1
+            if b[1] == self.landed_blocks[b[0]]:
+                blocked = True
+                if direction == "d":
+                    landed = True
+                    break
 
         if not blocked:
             block = new_position
@@ -90,10 +101,10 @@ class Tetris:
                 wind = self.pull_wind()
                 b, landed = self.move_block(b, wind)
                 b, landed = self.move_block(b, "d")
-            self.landed_blocks += b
+            self.update_landed(b)
         return self.max_landed_ele()
 
 
-# filename = r"year_2022/tests/test_inputs/17_test_input.txt"
-# t = Tetris(filename)
-# t.drop_blocks(10)
+filename = r'year_2022/tests/test_inputs/17_test_input.txt'
+t = Tetris(filename)
+t.drop_blocks(2022)
