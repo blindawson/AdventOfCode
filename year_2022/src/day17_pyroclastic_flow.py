@@ -2,12 +2,34 @@ from AdventOfCode.support import support
 import numpy as np
 
 
+class Blocks:
+    def __init__(
+        self, landed_blocks: list[tuple[int, int]] = None, num_blocks: int = 0
+    ) -> None:
+        if not landed_blocks:
+            self.landed = {x: [0] for x in range(1, 8)}
+        else:
+            self.landed = landed_blocks
+        self.num = num_blocks
+
+    def column_len(self) -> list[int]:
+        return [len(x) for x in self.landed.values()]
+        
+    def block_locs(self) -> list[list[int]]:
+        return list(self.landed.values())
+        
+    def max_landed_ele(self):
+        max_values = [max(x) for x in self.block_locs()]
+        return max(max_values)
+
+
 class Tetris:
     def __init__(self, filename: str):
         self.wind_pattern = support.read_input(filename, flavor=None, split_char=None)[
             0
         ]
-        self.landed_blocks = {x: [0] for x in range(1, 8)}
+        self.history = []
+        self.landed_blocks = Blocks()
         self.side_chamber = [0, 8]
         self.wind_index = 0
         self.block_index = 0
@@ -33,6 +55,8 @@ class Tetris:
             self.wind_index += 1
             return wind
         self.wind_index = 0
+        print(self.landed_blocks.column_len())
+        print(self.landed_blocks.block_locs())
         return self.pull_wind()
 
     def transpose_block(self, block: list[tuple[int, int]], vector: tuple[int, int]):
@@ -43,7 +67,7 @@ class Tetris:
         return new_position
 
     def add_block(self):
-        landed_ele = self.max_landed_ele()
+        landed_ele = self.landed_blocks.max_landed_ele()
         # print(self.landed_blocks)
         move_vector = (3, landed_ele + 4)
         if self.block_index < len(self.falling_blocks):
@@ -57,19 +81,16 @@ class Tetris:
     def update_landed(self, block: list[tuple[int, int]]):
         for b in block:
             x, y = b[0], b[1]
-            self.landed_blocks[x] += [y]
+            self.landed_blocks.landed[x] += [y]
         floor = np.inf
-        for column_values in self.landed_blocks.values():
+        for column_values in self.landed_blocks.block_locs():
             top_col = max(column_values)
             floor = min(floor, top_col)
-        self.landed_blocks = {
+        self.landed_blocks.landed = {
             key: [value for value in values if value >= floor]
-            for key, values in self.landed_blocks.items()
+            for key, values in self.landed_blocks.landed.items()
         }
-
-    def max_landed_ele(self):
-        max_values = [max(x) for x in self.landed_blocks.values()]
-        return max(max_values)
+        self.landed_blocks.num += 1
 
     def move_block(
         self, block: list[tuple[int, int]], direction: str
@@ -89,12 +110,12 @@ class Tetris:
                         blocked = True
                         break
                 if not blocked:
-                    if b[1] in self.landed_blocks[b[0]]:
+                    if b[1] in self.landed_blocks.landed[b[0]]:
                         blocked = True
                         break
             # Check hitting other block
             else:
-                if b[1] in self.landed_blocks[b[0]]:
+                if b[1] in self.landed_blocks.landed[b[0]]:
                     blocked = True
                     landed = True
                     break
@@ -112,8 +133,8 @@ class Tetris:
                 b, landed = self.move_block(b, wind)
                 b, landed = self.move_block(b, "d")
             self.update_landed(b)
-            print(self.landed_blocks)
-        return self.max_landed_ele()
+            # print([len(x) for x in self.landed_blocks.values()])
+        return self.landed_blocks.max_landed_ele()
 
 
 filename = r"year_2022/tests/test_inputs/17_test_input.txt"
