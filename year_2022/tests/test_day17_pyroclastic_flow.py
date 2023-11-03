@@ -22,4 +22,4 @@ def test_example_part2():
 def test_part2():
 	filename = r'year_2022/input/17_pyroclastic_flow.txt'
 	t = d17.Tetris(filename)
-	assert t.drop_blocks(1000000000000) == 99
+	assert t.drop_blocks(1000000000000) == 1589142857183

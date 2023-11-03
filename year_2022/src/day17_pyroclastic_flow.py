@@ -1,5 +1,7 @@
 from AdventOfCode.support import support
 import numpy as np
+import copy
+import math
 
 
 class Blocks:
@@ -14,10 +16,10 @@ class Blocks:
 
     def column_len(self) -> list[int]:
         return [len(x) for x in self.landed.values()]
-        
+
     def block_locs(self) -> list[list[int]]:
         return list(self.landed.values())
-        
+
     def max_landed_ele(self):
         max_values = [max(x) for x in self.block_locs()]
         return max(max_values)
@@ -49,15 +51,30 @@ class Tetris:
             [(0, 0), (0, 1), (1, 0), (1, 1)],
         ]
 
-    def pull_wind(self) -> str:
+    def check_history(self) -> [int, int]:
+        print(self.landed_blocks.num)
+        print(self.landed_blocks.column_len())
+        print(self.landed_blocks.block_locs())
+        for h in self.history:
+            if self.landed_blocks.column_len() == h.column_len():
+                diffs = []
+                for i, j in zip(self.landed_blocks.block_locs(), h.block_locs()):
+                    for m, n in zip(i, j):
+                        diffs.append(m - n)
+                if all(value == diffs[0] for value in diffs):
+                    loop_size = self.landed_blocks.num - h.num
+                    return diffs[0], loop_size
+        self.history.append(copy.deepcopy(self.landed_blocks))
+        return 0, 0
+
+    def pull_wind(self, loop_height: int = 0, loop_size: int = 0) -> [str, int]:
         if self.wind_index < len(self.wind_pattern):
             wind = self.wind_pattern[self.wind_index]
             self.wind_index += 1
-            return wind
+            return wind, loop_height, loop_size
         self.wind_index = 0
-        print(self.landed_blocks.column_len())
-        print(self.landed_blocks.block_locs())
-        return self.pull_wind()
+        loop_height, loop_size = self.check_history()
+        return self.pull_wind(loop_height, loop_size)
 
     def transpose_block(self, block: list[tuple[int, int]], vector: tuple[int, int]):
         new_position = []
@@ -125,18 +142,38 @@ class Tetris:
         return block, landed
 
     def drop_blocks(self, num_blocks: int):
-        for _ in range(num_blocks):
+        did_a_loop = False
+        n = 0
+        while n < num_blocks:
             b = self.add_block()
             landed = False
             while not landed:
-                wind = self.pull_wind()
+                wind, loop_height, loop_size = self.pull_wind()
+                # If we find a repeat in the dropping blocks pattern
+                if loop_height and not did_a_loop:
+                    # Remaining blocks to drop
+                    remaining_blocks = num_blocks - n
+
+                    # Number of loops we can automate
+                    num_auto_loops = math.floor(remaining_blocks / loop_size)
+
+                    # Raise blocks and skip loops
+                    for _, value in self.landed_blocks.landed.items():
+                        for i in range(len(value)):
+                            value[i] += loop_height * num_auto_loops
+                    n += num_auto_loops * loop_size
+                    self.landed_blocks.num = n
+                    did_a_loop = True
+                    b = self.transpose_block(b, (0, loop_height * num_auto_loops))
                 b, landed = self.move_block(b, wind)
                 b, landed = self.move_block(b, "d")
             self.update_landed(b)
+            n += 1
             # print([len(x) for x in self.landed_blocks.values()])
         return self.landed_blocks.max_landed_ele()
 
 
 filename = r"year_2022/tests/test_inputs/17_test_input.txt"
 t = Tetris(filename)
-t.drop_blocks(2022)
+# t.drop_blocks(2022)
+# t.drop_blocks(1000000000000)
