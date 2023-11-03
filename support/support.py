@@ -1,4 +1,5 @@
 import numpy as np
+from typing import Union
 
 
 def create_files(year: int, day: int, name: str):
@@ -65,8 +66,22 @@ def read_input(filename, flavor=None, split_char=None):
 
 
 # Listing adjacent coordinates in a grid
-def point_out_of_bounds(x, y, grid):
+def point_out_of_bounds(x: int, y: int, grid: list[list[int]]) -> bool:
     if (x < 0) | (x >= len(grid)) | (y < 0) | (y >= len(grid[0])):
+        return True
+    else:
+        return False
+
+
+def point_out_of_bounds_3D(x: int, y: int, z: int, grid: np.array) -> bool:
+    if (
+        (x < 0)
+        | (x >= grid.shape[0])
+        | (y < 0)
+        | (y >= grid.shape[1])
+        | (z < 0)
+        | (z >= grid.shape[2])
+    ):
         return True
     else:
         return False
