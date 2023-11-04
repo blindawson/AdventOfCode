@@ -13,11 +13,13 @@ def test_part1():
     assert r.sum_cube_faces() == 4282
 
 
-# def test_example_part2():
-#     filename = r"year_2022/tests/test_inputs/18_test_input.txt"
-#     assert d18.func(filename) == 99
+def test_example_part2():
+    filename = r"year_2022/tests/test_inputs/18_test_input.txt"
+    r = d18.Lava(filename, part2=True)
+    assert r.sum_cube_faces() == 58
 
 
 # def test_part2():
 #     filename = r"year_2022/input/18_boiling_boulders.txt"
-#     assert d18.func(filename) == 99
+#     r = d18.Lava(filename, part2=True)
+#     assert r.sum_cube_faces() == 58
