@@ -19,7 +19,7 @@ def test_example_part2():
     assert r.sum_cube_faces() == 58
 
 
-# def test_part2():
-#     filename = r"year_2022/input/18_boiling_boulders.txt"
-#     r = d18.Lava(filename, part2=True)
-#     assert r.sum_cube_faces() == 58
+def test_part2():
+    filename = r"year_2022/input/18_boiling_boulders.txt"
+    r = d18.Lava(filename, part2=True)
+    assert r.sum_cube_faces() == 2452

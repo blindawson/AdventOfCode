@@ -3,14 +3,23 @@ import numpy as np
 
 
 class Lava:
+    """
+    Grid of locations.
+    Air is initialized to 0.
+        Exterior air is changed to 1.
+        Interior air is changed to 2.
+    Lava is initialized to 16 (10 + 6 faces)
+        Part 1: Lava is reduced by 1 for each face touching other lava.
+        Part 2: Lava is reduced by 1 for each face touching other lava or interior air.
+    """
+
     def __init__(self, filename, part2: bool = False):
         self.file_input = support.read_input(
             filename, flavor="split_int", split_char=","
         )
-        self.part2 = part2
         self.read_input()
-        if self.part2:
-            self.group_air_cubes()
+        if part2:
+            self.fill_exterior()
         self.scan_grid()
 
     def read_input(self) -> None:
@@ -32,6 +41,7 @@ class Lava:
             (x, y, z + 1),
         ]
 
+    # Adjust lava values down for each nearby lava
     def scan_grid(self) -> None:
         for x in range(self.grid.shape[0]):
             for y in range(self.grid.shape[1]):
@@ -49,53 +59,48 @@ class Lava:
                                 if self.grid[nearby_loc] > 1:
                                     self.grid[cube_loc] -= 1
 
-    def group_air_cubes(self) -> None:
-        air_locs = np.where(self.grid == 0)
-        for a in range(len(air_locs[0])):
-            air_loc = air_locs[0][a], air_locs[1][a], air_locs[2][a]
-            _ = self.review_air_locs(air_loc)
-
-    def review_air_locs(
-        self, cube_loc: tuple[int, int, int], exterior_air: bool = False
-    ) -> bool:
-        if self.grid[cube_loc] == 0:
-            self.grid[cube_loc] = self.air_code
-            x, y, z = cube_loc
-            for nearby_loc in self.nearby_locs(x, y, z):
-                out_of_bounds = support.point_out_of_bounds_3D(
-                    x=nearby_loc[0],
-                    y=nearby_loc[1],
-                    z=nearby_loc[2],
-                    grid=self.grid,
-                )
-                if not out_of_bounds:
-                    if self.grid[nearby_loc] == 0:
-                        self.grid[cube_loc] = 3
-                else:
-                    self.air_code_reading[self.air_code] = "Exterior"
-            if exterior_air:
-                self.grid[cube_loc] = 1
-            else:
-                self.grid[cube_loc] = 2
-        return exterior_air
-
+    # Turn the edges of the grid from 0 to 1
+    # Then turn adjacent 0s to 1s and so on
     def fill_exterior(self) -> None:
-        # Turn the edges of the grid from 0 to 1
         grid_edges = [
             self.grid[0, :, :],
-            self.grid[:, 0, :],
-            self.grid[:, :, 0],
             self.grid[-1, :, :],
+            self.grid[:, 0, :],
             self.grid[:, -1, :],
+            self.grid[:, :, 0],
             self.grid[:, :, -1],
         ]
         exterior_air = []
-        for grid_edge in grid_edges:
+        for i, grid_edge in enumerate(grid_edges):
             grid_edge[grid_edge == 0] = 1
             coordinates = np.argwhere(grid_edge == 1)
+            if i == 0:
+                coordinates = [[0] + list(coordinate) for coordinate in coordinates]
+            elif i == 1:
+                coordinates = [
+                    [self.grid.shape[0] - 1] + list(coordinate)
+                    for coordinate in coordinates
+                ]
+            elif i == 2:
+                coordinates = [
+                    [coordinate[0]] + [0] + [coordinate[1]]
+                    for coordinate in coordinates
+                ]
+            elif i == 3:
+                coordinates = [
+                    [coordinate[0]] + [self.grid.shape[0] - 1] + [coordinate[1]]
+                    for coordinate in coordinates
+                ]
+            elif i == 4:
+                coordinates = [list(coordinate) + [0] for coordinate in coordinates]
+            elif i == 5:
+                coordinates = [
+                    list(coordinate) + [self.grid.shape[0] - 1]
+                    for coordinate in coordinates
+                ]
             exterior_air += [tuple(coord) for coord in coordinates]
 
-        while self.exterior_air:
+        while exterior_air:
             adjacent_air = []
             for e in exterior_air:
                 x, y, z = e
@@ -109,20 +114,12 @@ class Lava:
                     if not out_of_bounds:
                         if self.grid[nearby_loc] == 0:
                             adjacent_air.append(nearby_loc)
-                            nearby_loc = 1
+                            self.grid[nearby_loc] = 1
+            exterior_air = list(set(adjacent_air))
+        self.grid[self.grid == 0] = 2
 
     def sum_cube_faces(self) -> int:
-        if self.part2:
-            grid_sum = np.sum(self.grid[self.grid > 5])
-        else:
-            grid_sum = self.grid.sum()
+        grid_sum = np.sum(self.grid[self.grid > 5])
         grid_count = np.sum(self.grid > 5)
         grid_sum -= grid_count * 10
         return grid_sum
-
-
-# filename = r"year_2022/tests/test_inputs/18_test_input.txt"
-# filename = r"year_2022/input/18_boiling_boulders.txt"
-# r = Lava(filename, part2=False)
-# print(r.sum_cube_faces())
-# r.fill_exterior()
