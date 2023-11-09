@@ -7,7 +7,8 @@ def test_example():
     blueprints = []
     for b in support.read_input(filename):
         blueprints.append(d19.read_blueprint(b))
-    assert d19.Mining(blueprints, time_limit=24).quality_level == 33
+    m = d19.Mining(blueprints, time_limit=24)
+    assert m.quality_level == 33
 
 
 def test_part1():
@@ -16,15 +17,22 @@ def test_part1():
     for b in support.read_input(filename):
         blueprints.append(d19.read_blueprint(b))
     m = d19.Mining(blueprints, time_limit=24)
-    assert m.quality_level == 1044
-    # 1043 too low
+    assert m.quality_level == 1264
 
 
 def test_example_part2():
     filename = r"year_2022/tests/test_inputs/19_test_input.txt"
-    assert d19.func(filename) == 99
+    blueprints = []
+    for b in support.read_input(filename):
+        blueprints.append(d19.read_blueprint(b))
+    m = d19.Mining(blueprints, time_limit=32)
+    assert m.max_geodes[1] * m.max_geodes[2] == 56 * 62
 
 
 def test_part2():
     filename = r"year_2022/input/19_not_enough_minerals.txt"
-    assert d19.func(filename) == 99
+    blueprints = []
+    for b in support.read_input(filename)[:3]:
+        blueprints.append(d19.read_blueprint(b))
+    m = d19.Mining(blueprints, time_limit=32)
+    assert m.max_geodes[1] * m.max_geodes[2] * m.max_geodes[3] == 13475

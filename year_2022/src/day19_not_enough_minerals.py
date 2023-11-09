@@ -142,10 +142,9 @@ class Backpack:
     # What's the maximum geodes possible based on current backpack and time left
     def geode_potential(self, time_left):
         current_geodes = self.geodes
-        current_production = self.geode_robots * time_left
         # If we built a new geode robot every minute from now on
-        potential_production = int(time_left * (time_left + 1) / 2)
-        return current_geodes + current_production + potential_production
+        potential_production = int((time_left - 1) * time_left / 2)
+        return current_geodes + potential_production
 
 
 class Mining:
@@ -153,8 +152,10 @@ class Mining:
         self.blueprints = blueprints
         self.time_limit = time_limit
         self.max_geodes = {key: 0 for key in range(1, len(self.blueprints) + 1)}
+        self.under_geode_threshold = 0
         self.mine()
         self.get_quality_level()
+        print(self.under_geode_threshold)
 
     def get_quality_level(self) -> None:
         self.quality_level = 0
@@ -190,4 +191,6 @@ class Mining:
                         self.max_geode,
                         self.timestep(blueprint, new_backpack, action_time, time_limit),
                     )
+        else:
+            self.under_geode_threshold += 1
         return self.max_geode
