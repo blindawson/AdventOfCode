@@ -13,11 +13,13 @@ def test_part1():
 	assert m.ans["root"] == 145167969204648
 
 
-# def test_example_part2():
-# 	filename = r'year_2022/tests/test_inputs/21_test_input.txt'
-# 	assert d21.func(filename) == 99
+def test_example_part2():
+	filename = r'year_2022/tests/test_inputs/21_test_input.txt'
+	m = d21.MonkeyMath(filename, part2=True)
+	assert m.solution == 301
 
 
-# def test_part2():
-# 	filename = r'year_2022/input/21_monkey_math.txt'
-# 	assert d21.func(filename) == 99
+def test_part2():
+	filename = r'year_2022/input/21_monkey_math.txt'
+	m = d21.MonkeyMath(filename, part2=True)
+	assert m.solution == 3330805295850

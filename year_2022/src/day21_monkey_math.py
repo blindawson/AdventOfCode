@@ -43,6 +43,14 @@ class MonkeyMath:
             (key, value) for key, value in self.eqns.items() if "humn" in value
         ][0]
         self.replace_values(key0, value0)
+        self.formatted_equation = self.format_equation(self.eqns["root"])[1:-1]
+        humn = symbols('humn')
+        # Convert equation string into SymPy equation
+        eq = Eq(eval(self.formatted_equation.split('=')[0]), eval(self.formatted_equation.split('=')[1]))
+
+        # Solve the equation
+        self.solution = solve(eq, humn)[0]
+        
 
     def replace_values(self, key0, value0) -> None:
         # Find all key0 in eqn values and replace it with value0
@@ -73,25 +81,15 @@ class MonkeyMath:
                 self.eqns[monkey] = [eqn_monkey1, eqn_fn, eqn_monkey2]
         [self.eqns.pop(monkey) for monkey in moved_monkeys]
 
-    def solve_algebra(self) -> int:
-        eqn = self.eqns["root"]
-        if isinstance(eqn[0], int):
-            int_part = eqn[0]
-            eqn_part = eqn[2]
+    def format_equation(self, equation: list) -> str:
+        if isinstance(equation, list):
+            left = self.format_equation(equation[0])
+            operator = equation[1]
+            right = self.format_equation(equation[2])
+            return f"({left} {operator} {right})"
         else:
-            int_part = eqn[2]
-            eqn_part = eqn[0]
-            opr_part = eqn_part[1]
-            
-            opr_opp = reverse_operation[opr_part]
-            int_part = 
-            
-        # I need to start by defining the equality (eqn_side and ans_side)
-        # then within eqn_side I break that into eqn_part, opr_part, and int_part
-        # reverse operation
-        # ans_side = int_part reverse operation ans_side
-        # eqn_side = eqn_part
-        # repeat until eqn_part is length 1
+            return str(equation)
+
             
             
 
