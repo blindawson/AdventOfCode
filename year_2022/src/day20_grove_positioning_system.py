@@ -7,14 +7,16 @@ class Positioning:
         decryption_key = 811589153
         self.part2 = part2
         if self.part2:
-            original_list = [int(int(x) * decryption_key) for x in support.read_input(filename)]
+            original_list = [
+                int(int(x) * decryption_key) for x in support.read_input(filename)
+            ]
         else:
             original_list = [int(x) for x in support.read_input(filename)]
         self.og_list = [(index, number) for index, number in enumerate(original_list)]
         self.new_list = copy.deepcopy(self.og_list)
         if part2:
             mix_num = 10
-        else: 
+        else:
             mix_num = 1
         for _ in range(mix_num):
             for n in self.og_list:
@@ -42,10 +44,10 @@ class Positioning:
                 break  # Break out of the loop once the tuple is found
         for grove_num in [1000, 2000, 3000]:
             # Find 1,000 from 0
-            grove_idx = (index0 + grove_num) % len(self.new_list)  # Calculate the index using modulo operator
-            grove_sum += self.new_list[grove_idx][1]  # Get the value at the calculated index
+            grove_idx = (index0 + grove_num) % len(
+                self.new_list
+            )  # Calculate the index using modulo operator
+            grove_sum += self.new_list[grove_idx][
+                1
+            ]  # Get the value at the calculated index
         return grove_sum
-
-filename = r"year_2022/tests/test_inputs/20_test_input.txt"
-p = Positioning(filename)
-p.find_groves()
