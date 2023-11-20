@@ -44,13 +44,15 @@ class MonkeyMath:
         ][0]
         self.replace_values(key0, value0)
         self.formatted_equation = self.format_equation(self.eqns["root"])[1:-1]
-        humn = symbols('humn')
+        humn = symbols("humn")
         # Convert equation string into SymPy equation
-        eq = Eq(eval(self.formatted_equation.split('=')[0]), eval(self.formatted_equation.split('=')[1]))
+        eq = Eq(
+            eval(self.formatted_equation.split("=")[0]),
+            eval(self.formatted_equation.split("=")[1]),
+        )
 
         # Solve the equation
         self.solution = solve(eq, humn)[0]
-        
 
     def replace_values(self, key0, value0) -> None:
         # Find all key0 in eqn values and replace it with value0
@@ -90,9 +92,6 @@ class MonkeyMath:
         else:
             return str(equation)
 
-            
-            
-
 
 # Define the functions
 def add(a: int, b: int) -> int:
@@ -117,7 +116,3 @@ def divide(a: int, b: int) -> int:
 # Create a dictionary with keys and function values
 functions_dict = {"+": add, "-": subtract, "*": multiply, "/": divide}
 reverse_operation = {"+": "-", "-": "+", "*": "/", "/": "*"}
-
-filename = r"year_2022/tests/test_inputs/21_test_input.txt"
-# filename = r"year_2022/input/21_monkey_math.txt"
-m = MonkeyMath(filename, part2=True)
