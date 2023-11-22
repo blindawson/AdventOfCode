@@ -23,8 +23,8 @@ def create_files(year: int, day: int, name: str):
     src_file.write(
         "from AdventOfCode.support import support\n\n\n"
         + "class ClassName:\n"
-        + "\tdef __init__(self, filename):\n"
-        + "\t\tself.file_input = support.read_input(\n"
+        + "    def __init__(self, filename):\n"
+        + "        self.file_input = support.read_input(\n"
         + "filename, flavor=None, split_char=None)\n"
     )
     src_file.close()
@@ -34,17 +34,17 @@ def create_files(year: int, day: int, name: str):
     test_file.write(
         f"from AdventOfCode.year_{year}.src import day{day}_{name} as d{day}\n\n\n"
         + "def test_example():\n"
-        + f"\tfilename = r'year_{year}/tests/test_inputs/{day}_test_input.txt'\n"
-        + f"\tassert d{day}.func(filename) == 99\n\n\n"
+        + f"    filename = r'year_{year}/tests/test_inputs/{day}_test_input.txt'\n"
+        + f"    assert d{day}.ClassName(filename) == 99\n\n\n"
         + "def test_part1():\n"
-        + f"\tfilename = r'year_{year}/input/{day}_{name}.txt'\n"
-        + f"\tassert d{day}.func(filename) == 99\n\n\n"
+        + f"    filename = r'year_{year}/input/{day}_{name}.txt'\n"
+        + f"    assert d{day}.ClassName(filename) == 99\n\n\n"
         + "def test_example_part2():\n"
-        + f"\tfilename = r'year_{year}/tests/test_inputs/{day}_test_input.txt'\n"
-        + f"\tassert d{day}.func(filename) == 99\n\n\n"
+        + f"    filename = r'year_{year}/tests/test_inputs/{day}_test_input.txt'\n"
+        + f"    assert d{day}.ClassName(filename) == 99\n\n\n"
         + "def test_part2():\n"
-        + f"\tfilename = r'year_{year}/input/{day}_{name}.txt'\n"
-        + f"\tassert d{day}.func(filename) == 99\n"
+        + f"    filename = r'year_{year}/input/{day}_{name}.txt'\n"
+        + f"    assert d{day}.ClassName(filename) == 99\n"
     )
     test_file.close()
 
@@ -66,8 +66,8 @@ def read_input(filename, flavor=None, split_char=None):
 
 
 # Listing adjacent coordinates in a grid
-def point_out_of_bounds(x: int, y: int, grid: list[list[int]]) -> bool:
-    if (x < 0) | (x >= len(grid)) | (y < 0) | (y >= len(grid[0])):
+def point_out_of_bounds(y: int, x: int, grid: list[list[int]]) -> bool:
+    if (y < 0) | (y >= len(grid)) | (x < 0) | (x >= len(grid[0])):
         return True
     else:
         return False

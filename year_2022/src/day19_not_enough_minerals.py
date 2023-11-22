@@ -1,4 +1,3 @@
-from AdventOfCode.support import support
 import re
 import copy
 import math
