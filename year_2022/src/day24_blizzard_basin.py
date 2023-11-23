@@ -42,23 +42,33 @@ class Blizzard:
         }
 
         while not self.access[-1, -1]:
-            if not self.blizzards[0, 0]:
-                self.access[0, 0] = True
             self.time += 1
             self.move_blizzard()
+            if not self.blizzards[0, 0]:
+                self.access[0, 0] = True
             self.find_path()
+        self.access = np.empty(self.file_input.shape, dtype=bool)
+        self.access[:] = False
+        self.time_part1 = self.time
+        print(self.time_part1)
         while not self.access[0, 0]:
+            self.time += 1
+            self.move_blizzard()
             if not self.blizzards[-1, -1]:
                 self.access[-1, -1] = True
+            self.find_path()
+        self.access = np.empty(self.file_input.shape, dtype=bool)
+        self.access[:] = False
+        b = self.time
+        print(b - self.time_part1)
+        while not self.access[-1, -1]:
             self.time += 1
             self.move_blizzard()
-            self.find_path()
-        while not self.access[-1, -1]:
             if not self.blizzards[0, 0]:
                 self.access[0, 0] = True
-            self.time += 1
-            self.move_blizzard()
             self.find_path()
+        c = self.time
+        print(c - b)
 
     def move_blizzard(self):
         new_blizzards = self.create_empty_array()
@@ -99,18 +109,13 @@ class Blizzard:
             # Find that index and adjacent indices
             nearby_locs = support.list_ordinal_adjacent(index) + [index]
             nearby_locs = [
-                    x
-                    for x in nearby_locs
-                    if not support.point_out_of_bounds(x[0], x[1], self.access)
-                ]
+                x
+                for x in nearby_locs
+                if not support.point_out_of_bounds(x[0], x[1], self.access)
+            ]
             for nearby in nearby_locs:
                 # If a blizzard isn't at that location
                 if not self.blizzards[nearby]:
                     new_access[nearby] = True
 
         self.access = new_access
-
-
-filename = r"year_2022/tests/test_inputs/24_test_input.txt"
-m = Blizzard(filename)
-m.time + 1
