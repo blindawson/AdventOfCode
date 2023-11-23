@@ -113,3 +113,11 @@ def hex_to_bin(hex, scale=16, num_bits=4):
 
 def bin_to_dec(bin_input):
     return int(bin_input, 2)
+
+def list_ordinal_adjacent(pos: tuple[int]):
+        return [
+            (pos[0], pos[1] + 1),
+            (pos[0], pos[1] - 1),
+            (pos[0] + 1, pos[1]),
+            (pos[0] - 1, pos[1]),
+        ]
