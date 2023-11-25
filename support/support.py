@@ -18,14 +18,18 @@ def create_files(year: int, day: int, name: str):
     input_filename = f"year_{year}/input/{day}_{name}.txt"
     open(input_filename, "x")
 
+    test_input_filename = f"year_{year}/tests/test_inputs/{day}_test_input.txt"
+    open(test_input_filename, "x")
+
     src_filename = f"year_{year}/src/day{day}_{name}.py"
     src_file = open(src_filename, "w")
     src_file.write(
         "from AdventOfCode.support import support\n\n\n"
         + "class ClassName:\n"
         + "    def __init__(self, filename):\n"
-        + "        self.file_input = support.read_input(\n"
-        + "filename, flavor=None, split_char=None)\n"
+        + "        self.file_input = support.read_input(filename, flavor=None, split_char=None)\n\n\n"
+        + f"filename = r'{test_input_filename}'\n"
+        + "m = ClassName(filename)\n"
     )
     src_file.close()
 
@@ -34,22 +38,23 @@ def create_files(year: int, day: int, name: str):
     test_file.write(
         f"from AdventOfCode.year_{year}.src import day{day}_{name} as d{day}\n\n\n"
         + "def test_example():\n"
-        + f"    filename = r'year_{year}/tests/test_inputs/{day}_test_input.txt'\n"
-        + f"    assert d{day}.ClassName(filename) == 99\n\n\n"
+        + f"    filename = r'{test_input_filename}'\n"
+        + f"    m = d{day}.ClassName(filename)\n"
+        + f"    assert m.part1() == 99\n\n\n"
         + "def test_part1():\n"
-        + f"    filename = r'year_{year}/input/{day}_{name}.txt'\n"
-        + f"    assert d{day}.ClassName(filename) == 99\n\n\n"
+        + f"    filename = r'{input_filename}'\n"
+        + f"    m = d{day}.ClassName(filename)\n"
+        + f"    assert m.part1() == 99\n\n\n"
         + "def test_example_part2():\n"
-        + f"    filename = r'year_{year}/tests/test_inputs/{day}_test_input.txt'\n"
-        + f"    assert d{day}.ClassName(filename) == 99\n\n\n"
+        + f"    filename = r'{test_input_filename}'\n"
+        + f"    m = d{day}.ClassName(filename)\n"
+        + f"    assert m.part2() == 99\n\n\n"
         + "def test_part2():\n"
-        + f"    filename = r'year_{year}/input/{day}_{name}.txt'\n"
-        + f"    assert d{day}.ClassName(filename) == 99\n"
+        + f"    filename = r'{input_filename}'\n"
+        + f"    m = d{day}.ClassName(filename)\n"
+        + f"    assert m.part2() == 99\n"
     )
     test_file.close()
-
-    test_input_filename = f"year_{year}/tests/test_inputs/{day}_test_input.txt"
-    open(test_input_filename, "x")
 
 
 def read_input(filename, flavor=None, split_char=None):
@@ -114,10 +119,11 @@ def hex_to_bin(hex, scale=16, num_bits=4):
 def bin_to_dec(bin_input):
     return int(bin_input, 2)
 
+
 def list_ordinal_adjacent(pos: tuple[int]):
-        return [
-            (pos[0], pos[1] + 1),
-            (pos[0], pos[1] - 1),
-            (pos[0] + 1, pos[1]),
-            (pos[0] - 1, pos[1]),
-        ]
+    return [
+        (pos[0], pos[1] + 1),
+        (pos[0], pos[1] - 1),
+        (pos[0] + 1, pos[1]),
+        (pos[0] - 1, pos[1]),
+    ]
