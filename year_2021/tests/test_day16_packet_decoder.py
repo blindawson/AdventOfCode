@@ -1,5 +1,5 @@
-from support import support
-from year_2021.src import day16_packet_decoder as pe
+from AdventOfCode.support import support
+from AdventOfCode.year_2021.src import day16_packet_decoder as pe
 
 test_hex = 'D2FE28'
 test_bin = support.hex_to_bin(test_hex)

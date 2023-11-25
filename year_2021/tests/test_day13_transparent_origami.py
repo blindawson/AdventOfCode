@@ -1,5 +1,5 @@
-from year_2021.src import day13_transparent_origami as tt
-from support import support
+from AdventOfCode.year_2021.src import day13_transparent_origami as tt
+from AdventOfCode.support import support
 
 point_file = support.read_input(r'year_2021/tests/test_inputs/13_test_input.txt', 
                                 flavor='split_int', split_char=',')

@@ -1,6 +1,6 @@
 import pandas as pd
 from pandas._testing import assert_frame_equal
-from year_2021.src import day11_dumbo_octopus as dd
+from AdventOfCode.year_2021.src import day11_dumbo_octopus as dd
 
 test_data = dd.read_file(r'year_2021/tests/test_inputs/11_test_input.txt')
 test_data_increment = dd.read_file(r'year_2021/tests/test_inputs/11_test_input_increment.txt')

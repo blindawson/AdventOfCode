@@ -1,4 +1,4 @@
-from year_2021.src import day12_passage_pathing as pp
+from AdventOfCode.year_2021.src import day12_passage_pathing as pp
 
 input1 = pp.read_file('year_2021/tests/test_inputs/12_test_input_1.txt')
 input2 = pp.read_file('year_2021/tests/test_inputs/12_test_input_2.txt')

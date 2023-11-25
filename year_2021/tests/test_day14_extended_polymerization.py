@@ -1,5 +1,5 @@
-from year_2021.src import day14_extended_polymerization as ep
-from support import support
+from AdventOfCode.year_2021.src import day14_extended_polymerization as ep
+from AdventOfCode.support import support
 
 
 start_polymer = 'NNCB'
