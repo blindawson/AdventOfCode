@@ -27,10 +27,14 @@ class HotAir:
 
     def convert_to_num5(self, num10: int, ans: str = "", power: int = 0):
         if num10 > 0:
-            quotient = num10 / 5 ** power
+            quotient = num10 / 5**power
             remainder = int(quotient % 5)
             ans = self.n10_dict[remainder][0] + ans
-            num10 = num10 - (remainder* 5**power) + self.n10_dict[remainder][1] * 5**(power+1)
+            num10 = (
+                num10
+                - (remainder * 5**power)
+                + self.n10_dict[remainder][1] * 5 ** (power + 1)
+            )
             ans = self.convert_to_num5(num10, ans, power + 1)
         return ans
 
