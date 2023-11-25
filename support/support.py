@@ -1,5 +1,4 @@
 import numpy as np
-from typing import Union
 
 
 def create_files(year: int, day: int, name: str):
@@ -15,6 +14,7 @@ def create_files(year: int, day: int, name: str):
     name : str
         The name of the puzzle.
     """
+    day = str(day).zfill(2)
     input_filename = f"year_{year}/input/{day}_{name}.txt"
     open(input_filename, "x")
 
@@ -28,7 +28,7 @@ def create_files(year: int, day: int, name: str):
         + "class ClassName:\n"
         + "    def __init__(self, filename):\n"
         + "        self.file_input = support.read_input(filename, flavor=None, split_char=None)\n\n\n"
-        + f"filename = r'{test_input_filename}'\n"
+        + f'filename = r"{test_input_filename}"\n'
         + "m = ClassName(filename)\n"
     )
     src_file.close()
@@ -38,19 +38,19 @@ def create_files(year: int, day: int, name: str):
     test_file.write(
         f"from AdventOfCode.year_{year}.src import day{day}_{name} as d{day}\n\n\n"
         + "def test_example():\n"
-        + f"    filename = r'{test_input_filename}'\n"
+        + f'    filename = r"{test_input_filename}"\n'
         + f"    m = d{day}.ClassName(filename)\n"
         + f"    assert m.part1() == 99\n\n\n"
         + "def test_part1():\n"
-        + f"    filename = r'{input_filename}'\n"
+        + f'    filename = r"{input_filename}"\n'
         + f"    m = d{day}.ClassName(filename)\n"
         + f"    assert m.part1() == 99\n\n\n"
         + "def test_example_part2():\n"
-        + f"    filename = r'{test_input_filename}'\n"
+        + f'    filename = r"{test_input_filename}"\n'
         + f"    m = d{day}.ClassName(filename)\n"
         + f"    assert m.part2() == 99\n\n\n"
         + "def test_part2():\n"
-        + f"    filename = r'{input_filename}'\n"
+        + f'    filename = r"{input_filename}"\n'
         + f"    m = d{day}.ClassName(filename)\n"
         + f"    assert m.part2() == 99\n"
     )
