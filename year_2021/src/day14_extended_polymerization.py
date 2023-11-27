@@ -1,4 +1,4 @@
-from support import support
+from AdventOfCode.support import support
 import pandas as pd
 
 
