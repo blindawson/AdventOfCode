@@ -69,12 +69,7 @@ def order_all(input_filename):
     n = len(packets)
     for i in range(n - 1):
         for j in range(0, n - i - 1):
-            # print(packets[i], packets[i+1])
             p = PacketPair(packets[j], packets[j + 1])
             if not p.right_order:
                 packets[j], packets[j + 1] = packets[j + 1], packets[j]
     return packets
-
-
-filename = r"year_2022/tests/test_inputs/13_test_input.txt"
-packets = order_all(filename)
