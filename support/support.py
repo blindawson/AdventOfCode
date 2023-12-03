@@ -127,3 +127,15 @@ def list_ordinal_adjacent(pos: tuple[int]):
         (pos[0] + 1, pos[1]),
         (pos[0] - 1, pos[1]),
     ]
+
+def list_all_adjacent(pos: tuple[int]):
+    return [
+        (pos[0], pos[1] + 1),
+        (pos[0], pos[1] - 1),
+        (pos[0] + 1, pos[1]),
+        (pos[0] - 1, pos[1]),
+        (pos[0] - 1, pos[1] - 1),
+        (pos[0] + 1, pos[1] - 1),
+        (pos[0] + 1, pos[1] + 1),
+        (pos[0] - 1, pos[1] + 1),
+    ]
