@@ -73,8 +73,3 @@ class Gear:
                     next_index, str_num, adjacent_index
                 )
         return str_num, adjacent_index
-
-
-filename = r"year_2023/tests/test_inputs/03_test_input.txt"
-m = Gear(filename)
-m.find_number((2, 6), "3")
