@@ -1,7 +1,7 @@
 from AdventOfCode.support import support
 
 
-class ClassName:
+class CubeColors:
     def __init__(self, filename):
         self.file_input = support.read_input(filename, flavor="split", split_char=" ")
         self.sum = 0

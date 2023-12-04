@@ -2,7 +2,7 @@ from AdventOfCode.support import support
 import numpy as np
 
 
-class ClassName:
+class Scratchcards:
     def __init__(self, filename):
         self.file_input = support.read_input(filename, flavor="split", split_char=" ")
         self.sum_points = 0

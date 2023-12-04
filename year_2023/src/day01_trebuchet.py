@@ -1,7 +1,7 @@
 from AdventOfCode.support import support
 
 
-class ClassName:
+class Trebuchet:
     def __init__(self, filename, part2=False):
         self.file_input = support.read_input(filename, flavor=None, split_char=None)
         self.sum = 0
