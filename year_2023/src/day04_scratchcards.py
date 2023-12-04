@@ -16,7 +16,6 @@ class Scratchcards:
             self.card_count[index + 1 : index + item + 1] += self.card_count[index]
 
     def calc_matches(self, row):
-        # card_num = row[1][:-1]
         split_index = row.index("|")
         winning_nums = [x for x in row[2 : split_index + 1] if x.isnumeric()]
         have_nums = [x for x in row[split_index + 1 :] if x.isnumeric()]
