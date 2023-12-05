@@ -53,6 +53,7 @@ def create_files(year: int, day: int, name: str):
         + f'    filename = r"{input_filename}"\n'
         + f"    m = d{day}.ClassName(filename)\n"
         + f"    assert m.part2() == 99\n"
+        + f"    m.file_input"
     )
     test_file.close()
 
