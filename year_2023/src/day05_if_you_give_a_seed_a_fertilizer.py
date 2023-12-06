@@ -41,7 +41,7 @@ class Seed:
         conversion_range = self.conversion_to_range(conversion)
         new_ranges = []
         for r in self.ranges:
-            new_ranges += self.split_range(r, conversion_range)
+            new_ranges += support.split_range(r, conversion_range)
         return new_ranges
 
     def conversion_to_range(self, conversion):
@@ -67,33 +67,3 @@ class Seed:
             source = self.conversion_path(source, conversion)
         # print(source)
         return source
-
-    def split_range(self, range1: tuple, range2: tuple):
-        # If range1 within range2
-        if (range1[0] >= range2[0]) and (range1[1] <= range2[1]):
-            # return range 1
-            return [range1]
-        # If range2 within range1
-        elif (range1[0] < range2[0]) and (range1[1] > range2[1]):
-            # Split range 1 into 3 ranges
-            return [
-                (range1[0], range2[0] - 1),
-                (range2[0], range2[1]),
-                (range2[1] + 1, range1[1]),
-            ]
-        # If new range overlaps with existing range
-        elif (range1[0] >= range2[0]) and (range1[0] <= range2[1]):
-            # Split range 1 into 2 ranges
-            return [(range1[0], range2[1]), (range2[1] + 1, range1[1])]
-        # If new range overlaps with existing range
-        elif (range2[0] >= range1[0]) and (range2[0] <= range1[1]):
-            # Split range 1 into 2 ranges
-            return [(range1[0], range2[0] - 1), (range2[0], range1[1])]
-        else:
-            return [range1]
-
-
-filename = r"year_2023/tests/test_inputs/05_test_input.txt"
-# filename = r"year_2023/input/05_if_you_give_a_seed_a_fertilizer.txt"
-
-m = Seed(filename)
