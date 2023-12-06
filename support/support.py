@@ -30,6 +30,7 @@ def create_files(year: int, day: int, name: str):
         + "        self.file_input = support.read_input(filename, flavor=None, split_char=None)\n\n\n"
         + f'filename = r"{test_input_filename}"\n'
         + "m = ClassName(filename)\n"
+        + "    m.file_input"
     )
     src_file.close()
 
@@ -53,7 +54,6 @@ def create_files(year: int, day: int, name: str):
         + f'    filename = r"{input_filename}"\n'
         + f"    m = d{day}.ClassName(filename)\n"
         + f"    assert m.part2() == 99\n"
-        + f"    m.file_input"
     )
     test_file.close()
 
@@ -129,6 +129,7 @@ def list_ordinal_adjacent(pos: tuple[int]):
         (pos[0] - 1, pos[1]),
     ]
 
+
 def list_all_adjacent(pos: tuple[int]):
     return [
         (pos[0], pos[1] + 1),
@@ -140,3 +141,28 @@ def list_all_adjacent(pos: tuple[int]):
         (pos[0] + 1, pos[1] + 1),
         (pos[0] - 1, pos[1] + 1),
     ]
+
+# Split a range depending on how it overlaps with another range
+def split_range(range1: tuple, range2: tuple):
+    # If range1 within range2
+    if (range1[0] >= range2[0]) and (range1[1] <= range2[1]):
+        # return range 1
+        return [range1]
+    # If range2 within range1
+    elif (range1[0] < range2[0]) and (range1[1] > range2[1]):
+        # Split range 1 into 3 ranges
+        return [
+            (range1[0], range2[0] - 1),
+            (range2[0], range2[1]),
+            (range2[1] + 1, range1[1]),
+        ]
+    # If new range overlaps with existing range
+    elif (range1[0] >= range2[0]) and (range1[0] <= range2[1]):
+        # Split range 1 into 2 ranges
+        return [(range1[0], range2[1]), (range2[1] + 1, range1[1])]
+    # If new range overlaps with existing range
+    elif (range2[0] >= range1[0]) and (range2[0] <= range1[1]):
+        # Split range 1 into 2 ranges
+        return [(range1[0], range2[0] - 1), (range2[0], range1[1])]
+    else:
+        return [range1]
