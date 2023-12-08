@@ -96,10 +96,3 @@ class ClassName:
             else:
                 rank = 100
         return rank
-
-
-# filename = r"year_2023/tests/test_inputs/07_test_input.txt"
-filename = r"year_2023/input/07_camel_cards.txt"
-m = ClassName(filename, jokers_wild=True)
-# m.sorted_hands
-m.hand_rank('JJ7JT')
