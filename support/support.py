@@ -30,7 +30,7 @@ def create_files(year: int, day: int, name: str):
         + "        self.file_input = support.read_input(filename, flavor=None, split_char=None)\n\n\n"
         + f'filename = r"{test_input_filename}"\n'
         + "m = ClassName(filename)\n"
-        + "    m.file_input"
+        + "m.file_input"
     )
     src_file.close()
 
