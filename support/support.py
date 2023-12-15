@@ -106,11 +106,17 @@ def find_nearby_coordinates(grid):
     nearby_coordinates = np.zeros([len(grid), len(grid[0])], dtype=np.ndarray)
     for x in range(len(grid)):
         for y in range(len(grid[0])):
-            nearby_initial = [[x - 1, y], [x, y - 1], [x + 1, y], [x, y + 1]]
+            nearby_initial = [(x - 1, y), (x, y - 1), (x + 1, y), (x, y + 1)]
             nearby_coordinates[x, y] = remove_out_of_bounds_coordinates(
                 nearby_initial, grid
             )
     return nearby_coordinates
+
+
+def list_neighbors(loc: tuple, grid):
+    y, x = loc
+    nearby_initial = [(y - 1, x), (y, x - 1), (y + 1, x), (y, x + 1)]
+    nearby_initial = remove_out_of_bounds_coordinates(nearby_initial, grid)
 
 
 def hex_to_bin(hex, scale=16, num_bits=4):
@@ -142,6 +148,7 @@ def list_all_adjacent(pos: tuple[int]):
         (pos[0] - 1, pos[1] + 1),
     ]
 
+
 # Split a range depending on how it overlaps with another range
 def split_range(range1: tuple, range2: tuple):
     # If range1 within range2
@@ -166,3 +173,10 @@ def split_range(range1: tuple, range2: tuple):
         return [(range1[0], range2[0] - 1), (range2[0], range1[1])]
     else:
         return [range1]
+
+
+direction_dict = {"N": (-1, 0), "S": (1, 0), "E": (0, 1), "W": (0, -1)}
+
+
+def sum_tuples(tuple1, tuple2):
+    return tuple(x + y for x, y in zip(tuple1, tuple2))
