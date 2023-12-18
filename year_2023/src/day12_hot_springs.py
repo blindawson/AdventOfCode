@@ -14,7 +14,7 @@ class Springs:
             if self.part2:
                 item[0] = ((item[0] + "?") * 5)[:-1]
                 item[1] = item[1] * 5
-            item[0] = self.grouped_row(item[0])
+            # item[0] = self.grouped_row(item[0])
             sum += self.calc_combinations(item[0], item[1])
         return sum
 
@@ -41,62 +41,70 @@ class Springs:
 
     # List the size of each group in a row
     def row_count(self, row: str):
-        return [len(x) for x in self.grouped_row(row)]
+        return [row[-1]] + [len(x) for x in self.grouped_row(row)]
 
     def group2txt(self, group: list):
         txt = ""
-        for g in group:
-            txt += "." + "#" * g + "."
+        for g in group[1:]:
+            txt += "." + "#" * g
+        if group[0] == ".":
+            txt += "."
         return txt
 
-    def test_text(self, text: list, groups: list):
+    def test_text(self, text: str, groups: list, bonus: int):
         options = []
-        for i in [".", "#"]:
-            text1 = text.replace("?", i, 1)
-            if "?" in text1:
-                start_text1_str = text1[: text1.find("?")]
-                start_text1_int = self.row_count(start_text1_str)
-                if (start_text1_int[:-1] == groups[: len(start_text1_int[:-1])]) and (
-                    start_text1_int[-1] <= groups[len(start_text1_int) - 1]
-                ):
-                    options.append(text1)
-            else:
-                start_text1_str = text1
-                start_text1_int = self.row_count(start_text1_str)
-                if start_text1_int == groups:
-                    options.append(text1)
-            
+        if text[-1] == "?":
+            for i in [".", "#"]:
+                new_text = text.replace("?", i)
+                text_int = self.row_count(new_text)
+                if self.compare_groups(text_int, groups, bonus):
+                    options.append(new_text)
+        else:
+            options.append(text)
         return options
 
-    def calc_combinations(
-        self, dashdot: list, group_sizes: list, previous_groups: list = []
-    ):
-        combo_strs = self.row_combos(dashdot[0])
-        group_dict = {}
-        combo_sum = 0
-        for combo_str in combo_strs:
-            combo_int = previous_groups + self.row_count(combo_str)
-            if combo_int == group_sizes[: len(previous_groups + combo_int)]:
-                if tuple(combo_int) in group_dict.keys():
-                    group_dict[tuple(combo_int)] += 1
-                else:
-                    group_dict[tuple(combo_int)] = 1
-        if len(dashdot) > 1:
-            for key, value in group_dict.items():
-                new_dashdot = [self.group2txt(key) + "." + dashdot[1]] + dashdot[2:]
-                combo_sum += self.calc_combinations(new_dashdot, group_sizes) * value
+    def compare_groups(self, groups1: list, groups2: list, bonus: int):
+        groups1 = groups1[1:]
+        if len(groups1) == 0:
+            return True
+        solid = groups1[:-1]
+        if not solid == groups2[: len(solid)]:
+            return False
+        end_max = groups1[-1] + bonus
+        if (
+            (len(groups1) <= len(groups2))
+            and (groups2[len(solid)] >= groups1[-1])
+            and (groups2[len(solid)] <= end_max)
+        ):
+            return True
         else:
+            return False
+
+    def calc_combinations(self, text: str, groups: list):
+        group_dict = {("."): 1}
+        for i in range(len(text)):
+            next_char = text[i]
+            remaining_str = text[i + 1 :]
+            new_dict = {}
             for key, value in group_dict.items():
-                if list(key) == group_sizes:
-                    combo_sum += value
-        return combo_sum
-
-
-filename = r"year_2023/tests/test_inputs/12_test_input.txt"
-# filename = r"year_2023/input/12_hot_springs.txt"
-
-m = Springs(filename, part2=True)
-# m.test_text('.#.###.#.#####?', [1, 3, 1, 6])
-m.test_text(".??..??...?##.", [1,1,3])
-
-# No recursive, just loop switching back and forth between ints and strs
+                new_text = self.group2txt(key) + next_char
+                if "." in remaining_str:
+                    bonus = remaining_str.find(".")
+                else:
+                    bonus = len(remaining_str)
+                text_list = m.test_text(new_text, groups, bonus)
+                for t in text_list:
+                    grouped = tuple(self.row_count(t))
+                    if grouped in new_dict.keys():
+                        new_dict[grouped] += value
+                    else:
+                        new_dict[grouped] = value
+            group_dict = new_dict
+        new_dict = {}
+        for key, value in group_dict.items():
+            if key[1:] in new_dict.keys():
+                new_dict[key[1:]] += value
+            else:
+                new_dict[key[1:]] = value
+        group_dict = new_dict
+        return group_dict[tuple(groups)]

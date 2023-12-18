@@ -16,10 +16,10 @@ def test_part1():
 def test_example_part2():
     filename = r"year_2023/tests/test_inputs/12_test_input.txt"
     m = d12.Springs(filename, part2=True)
-    assert m.sum == 525152
+    assert m.calc_arrangements() == 525152
 
 
 def test_part2():
     filename = r"year_2023/input/12_hot_springs.txt"
-    m = d12.Springs(filename)
-    assert m.sum == 99
+    m = d12.Springs(filename, part2=True)
+    assert m.calc_arrangements() == 3384337640277
