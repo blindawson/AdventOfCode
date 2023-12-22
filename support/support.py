@@ -180,3 +180,6 @@ direction_dict = {"N": (-1, 0), "S": (1, 0), "E": (0, 1), "W": (0, -1)}
 
 def sum_tuples(tuple1, tuple2):
     return tuple(x + y for x, y in zip(tuple1, tuple2))
+    
+def reverse_array(a):
+    return a[::-1]
