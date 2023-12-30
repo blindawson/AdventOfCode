@@ -32,7 +32,7 @@ class BeamReflector:
     def def_bean(self, loc, dir):
         return {"loc": loc, "dir": dir}
 
-    def move_beam(self, start_loc=(0,0), start_dir="E"):
+    def move_beam(self, start_loc=(0, 0), start_dir="E"):
         beam_map = np.zeros(self.file_input.shape, dtype=int)
         previous_beams = np.empty(self.file_input.shape, dtype=object)
         previous_beams[:] = [
@@ -75,19 +75,17 @@ class BeamReflector:
                 beams.pop(i)
             beams += new_beams
         return sum(sum(beam_map))
-        
+
     def find_beam(self):
         max_beams = 0
         for y in range(self.file_input.shape[0]):
             max_beams = max(max_beams, self.move_beam((y, 0), "E"))
-            max_beams = max(max_beams, self.move_beam((y, self.file_input.shape[1]-1), "W"))
+            max_beams = max(
+                max_beams, self.move_beam((y, self.file_input.shape[1] - 1), "W")
+            )
         for x in range(self.file_input.shape[1]):
             max_beams = max(max_beams, self.move_beam((0, x), "S"))
-            max_beams = max(max_beams, self.move_beam((self.file_input.shape[0]-1, x), "N"))
+            max_beams = max(
+                max_beams, self.move_beam((self.file_input.shape[0] - 1, x), "N")
+            )
         return max_beams
-            
-
-
-filename = r"year_2023/tests/test_inputs/16_test_input.txt"
-m = BeamReflector(filename)
-m.move_beam()
