@@ -92,7 +92,7 @@ class Springs:
                     bonus = remaining_str.find(".")
                 else:
                     bonus = len(remaining_str)
-                text_list = m.test_text(new_text, groups, bonus)
+                text_list = self.test_text(new_text, groups, bonus)
                 for t in text_list:
                     grouped = tuple(self.row_count(t))
                     if grouped in new_dict.keys():
