@@ -91,9 +91,7 @@ class Crucible:
                             ):
                                 map_dict[key].append((node, turn_node_str))
 
-            node_in_that_direction = self.adjacent_nodes(
-                active_node, 1
-            )[move_dir]
+            node_in_that_direction = self.adjacent_nodes(active_node, 1)[move_dir]
             for i in range(self.line_range[0], self.line_range[1]):
                 key = str(i) + move_dir
                 key1 = str(i + 1) + move_dir
@@ -171,10 +169,3 @@ class Crucible:
     def min_heat_loss(self):
         self.dijkstra()
         return [x for x in self.heat_dicts[-1, -1].values() if not np.isnan(x)][0] - 1
-
-
-filename = r"year_2023/tests/test_inputs/17_test_input.txt"
-# m = Crucible(filename, part2=False)
-m = Crucible(filename, part2=True)
-m.min_heat_loss()
-m.dict_to_dict_mapping((0, 4))
