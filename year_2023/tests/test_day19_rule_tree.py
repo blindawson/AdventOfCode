@@ -16,10 +16,10 @@ def test_part1():
 def test_example_part2():
     filename = r"year_2023/tests/test_inputs/19_test_input.txt"
     m = d19.ClassName(filename)
-    assert m.part2() == 99
+    assert m.sum_rules() == 167409079868000
 
 
 def test_part2():
     filename = r"year_2023/input/19_rule_tree.txt"
     m = d19.ClassName(filename)
-    assert m.part2() == 99
+    assert m.sum_rules() == 122756210763577
