@@ -8,4 +8,5 @@ black
 pylint
 flake8
 ipykernel
+shapely
 sympy
