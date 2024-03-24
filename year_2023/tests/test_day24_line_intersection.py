@@ -12,8 +12,7 @@ def test_part1():
     m = d24.LineIntersection(
         filename, (200000000000000, 400000000000000, 200000000000000, 400000000000000)
     )
-    assert m.compare_lines() == 99
-    # 11452 too low
+    assert m.compare_lines() == 16172
 
 
 def test_example_part2():

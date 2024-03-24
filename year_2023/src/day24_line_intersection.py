@@ -46,18 +46,6 @@ class LineIntersection:
             y = det(d, ydiff) / div
         return (x, y)
 
-    def test_area_loc(self, line_pos1: tuple):
-        # Find if test area is left, right, or over the line start position
-        line_pos1x = line_pos1[0]
-        x_start, x_end, _, _ = self.test_area
-        if line_pos1x < x_start:
-            pos = "left"
-        elif line_pos1x > x_end:
-            pos = "right"
-        else:
-            pos = "over"
-        return pos
-
     def line_dir(self, line_vel: tuple):
         if line_vel[0] <= 0:
             x = "left"
@@ -77,35 +65,18 @@ class LineIntersection:
         else:
             return False
 
-    def area_intersection(self, line1, line2):
-        # Check to see if the intersection is inside the test area
+    def directionally_correct(self, line1, line2, xy):
+        # Check to see that intersection of two lines happens
+        # in the future (not the past)
 
-        # line input is loc1 and velocity
-        xy1 = line1[0][:2]
-        xy2 = line2[0][:2]
-        v1 = line1[1][:2]
-        v2 = line2[1][:2]
+        # which direction is intersection xy
+        l1toxy = xy[0] - line1[0][0]
+        l2toxy = xy[0] - line2[0][0]
 
-        loc1 = self.test_area_loc(xy1)
-        loc2 = self.test_area_loc(xy2)
-        dir1 = self.line_dir(v1)
-        dir2 = self.line_dir(v2)
+        right_dir1 = self.line_dir(line1[1]) == self.line_dir([l1toxy])
+        right_dir2 = self.line_dir(line2[1]) == self.line_dir([l2toxy])
 
-        # if both lines are in test area or heading in the right direction
-        check1 = False
-        check2 = False
-        if (loc1 == "over") or (loc1 == dir1):
-            check1 = True
-        if (loc2 == "over") or (loc2 == dir2):
-            check2 = True
-
-        add_intersection = False
-        if check1 and check2:
-            xy = self.line_intersection(line1, line2)
-            # print(xy)
-            add_intersection = self.xy_in_area(xy)
-
-        return add_intersection
+        return right_dir1 and right_dir2
 
     def compare_lines(self):
         pairs = [
@@ -116,26 +87,13 @@ class LineIntersection:
         ints = 0
         for pair in pairs:
             line1, line2 = pair
-            if self.area_intersection(line1, line2) and self.directionally_correct(
-                line1, line2
+            xy = self.line_intersection(line1, line2)
+            if self.xy_in_area(xy) and self.directionally_correct(
+                line1, line2, xy
             ):
                 # print((line1, line2))
                 ints += 1
         return ints
-
-    def directionally_correct(self, line1, line2):
-        # Check to see that intersection of two lines happens
-        # in the future (not the past)
-        xy = self.line_intersection(line1, line2)
-
-        # which direction is intersection xy
-        l1toxy = xy[0] - line1[0][0]
-        l2toxy = xy[0] - line2[0][0]
-
-        right_dir1 = self.line_dir(line1[1]) == self.line_dir([l1toxy])
-        right_dir2 = self.line_dir(line2[1]) == self.line_dir([l2toxy])
-
-        return right_dir1 and right_dir2
 
 
 filename = r"year_2023/tests/test_inputs/24_test_input.txt"
