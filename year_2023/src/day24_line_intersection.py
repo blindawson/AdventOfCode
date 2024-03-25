@@ -1,6 +1,5 @@
 from AdventOfCode.support import support
 import numpy as np
-import copy
 
 
 class LineIntersection:
