@@ -1,10 +1,11 @@
 from AdventOfCode.support import support
 import numpy as np
+import copy
 
 
 class LineIntersection:
     def __init__(self, filename, test_area):
-        # test area is (x1, x2, y1, y2)
+        """test area is (x1, x2, y1, y2)"""
         self.test_area = test_area
         self.file_input = support.read_input(filename, flavor="split", split_char=" @ ")
         self.read_input()
@@ -17,7 +18,7 @@ class LineIntersection:
             self.file_input[r] = [pos, vel]
 
     def line_intersection(self, input1, input2):
-        # give me the coordinates of where the lines intersect
+        """give me the coordinates of where the lines intersect"""
 
         # Line input format: [[x1, y1, v1], [vx, vy, vz]]
         line1 = (
@@ -40,6 +41,7 @@ class LineIntersection:
         if div == 0:
             x = np.inf
             y = np.inf
+            # print(line1, line2)
         else:
             d = (det(*line1), det(*line2))
             x = det(d, xdiff) / div
@@ -66,8 +68,8 @@ class LineIntersection:
             return False
 
     def directionally_correct(self, line1, line2, xy):
-        # Check to see that intersection of two lines happens
-        # in the future (not the past)
+        """Check to see that intersection of two lines happens
+        in the future (not the past)"""
 
         # which direction is intersection xy
         l1toxy = xy[0] - line1[0][0]
@@ -88,14 +90,43 @@ class LineIntersection:
         for pair in pairs:
             line1, line2 = pair
             xy = self.line_intersection(line1, line2)
-            if self.xy_in_area(xy) and self.directionally_correct(
-                line1, line2, xy
-            ):
+            if self.xy_in_area(xy) and self.directionally_correct(line1, line2, xy):
                 # print((line1, line2))
                 ints += 1
         return ints
 
+    def intersection_time(self, intersect_pt, line_row, xv, yv):
+        line1 = line_row.copy()
+        line1[1] = [line1[1][0] - xv, line1[1][1] - yv, line1[1][2]]
+        print(line1)
+        return (intersect_pt[0] - line1[0][0]) / line1[1][0]
 
-filename = r"year_2023/tests/test_inputs/24_test_input.txt"
-m = LineIntersection(filename, (7, 27, 7, 27))
-m.compare_lines()
+    def part2(self, r):
+        for xv in range(-r, r):
+            for yv in range(-r, r):
+                line1 = self.file_input[0].copy()
+                line2 = self.file_input[1].copy()
+                line1[1] = [line1[1][0] - xv, line1[1][1] - yv, line1[1][2]]
+                line2[1] = [line2[1][0] - xv, line2[1][1] - yv, line2[1][2]]
+                xy0 = self.line_intersection(line1, line2)
+
+                xy_match = True
+                # for i in range(2, len(self.file_input)-1, 2):
+                for i in range(2, len(self.file_input)):
+                    line1 = self.file_input[0].copy()
+                    line2 = self.file_input[i].copy()
+                    line1[1] = [line1[1][0] - xv, line1[1][1] - yv, line1[1][2]]
+                    line2[1] = [line2[1][0] - xv, line2[1][1] - yv, line2[1][2]]
+                    xy = self.line_intersection(line1, line2)
+                    if (xy0 != xy) and (xy != (np.inf, np.inf)):
+                        xy_match = False
+                        break
+
+                if xy_match:
+                    return xv, yv, xy0
+        return False, False, False
+
+    def hail_loc(self, row_line, t):
+        x, y, z = row_line[0]
+        xv, yv, zv = row_line[1]
+        return (x + xv * t, y + yv * t, z + zv * t)
