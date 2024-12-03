@@ -24,11 +24,16 @@ def create_files(year: int, day: int, name: str):
     src_filename = f"year_{year}/src/day{day}_{name}.py"
     src_file = open(src_filename, "w")
     src_file.write(
-        "from AdventOfCode.support import support\n\n\n"
+        "from support import support\n\n\n"
         + "class ClassName:\n"
         + "    def __init__(self, filename):\n"
-        + "        self.file_input = support.read_input(filename, flavor=None, split_char=None)\n\n\n"
+        + "        self.file_input = support.read_input(filename, flavor=None, split_char=None)\n\n"
+        + "    def part1(self):\n"
+        + "        pass\n\n"
+        + "    def part2(self):\n"
+        + "        pass\n\n\n"
         + f'filename = r"{test_input_filename}"\n'
+        + f'# filename = r"{input_filename}"\n'
         + "m = ClassName(filename)\n"
         + "m.file_input"
     )
@@ -37,7 +42,7 @@ def create_files(year: int, day: int, name: str):
     test_filename = f"year_{year}/tests/test_day{day}_{name}.py"
     test_file = open(test_filename, "w")
     test_file.write(
-        f"from AdventOfCode.year_{year}.src import day{day}_{name} as d{day}\n\n\n"
+        f"from year_{year}.src import day{day}_{name} as d{day}\n\n\n"
         + "def test_example():\n"
         + f'    filename = r"{test_input_filename}"\n'
         + f"    m = d{day}.ClassName(filename)\n"
