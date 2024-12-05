@@ -118,11 +118,25 @@ def find_nearby_coordinates(grid):
     return nearby_coordinates
 
 
-def list_neighbors(loc: tuple, grid):
+def list_neighbors(loc: tuple, grid, diagonal=False):
+    # List coordinates adjacent to loc
     y, x = loc
-    nearby_initial = [(y - 1, x), (y, x - 1), (y + 1, x), (y, x + 1)]
+    if diagonal:
+        nearby_initial = [
+            (y - 1, x),
+            (y, x - 1),
+            (y + 1, x),
+            (y, x + 1),
+            (y + 1, x + 1),
+            (y + 1, x - 1),
+            (y - 1, x + 1),
+            (y - 1, x - 1),
+        ]
+    else:
+        nearby_initial = [(y - 1, x), (y, x - 1), (y + 1, x), (y, x + 1)]
     nearby_initial = remove_out_of_bounds_coordinates(nearby_initial, grid)
     return nearby_initial
+
 
 def hex_to_bin(hex, scale=16, num_bits=4):
     return bin(int(hex, scale))[2:].zfill(num_bits * len(hex))
@@ -185,9 +199,11 @@ direction_dict = {"N": (-1, 0), "S": (1, 0), "E": (0, 1), "W": (0, -1)}
 
 def sum_tuples(tuple1, tuple2):
     return tuple(x + y for x, y in zip(tuple1, tuple2))
-    
+
+
 def subtract_tuples(tuple1, tuple2):
     return tuple(x - y for x, y in zip(tuple1, tuple2))
-    
+
+
 def reverse_array(a):
     return a[::-1]
