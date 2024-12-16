@@ -43,22 +43,20 @@ def create_files(year: int, day: int, name: str):
     test_file = open(test_filename, "w")
     test_file.write(
         f"from year_{year}.src import day{day}_{name} as d{day}\n\n\n"
+        + f'test_input_filename = r"{test_input_filename}"\n'
+        + f'input_filename = r"{input_filename}"\n\n\n'
         + "def test_example():\n"
-        + f'    filename = r"{test_input_filename}"\n'
-        + f"    m = d{day}.ClassName(filename)\n"
-        + f"    assert m.part1() == 99\n\n\n"
+        + f"    m = d{day}.ClassName(test_input_filename)\n"
+        + "    assert m.part1() == 99\n\n\n"
         + "def test_part1():\n"
-        + f'    filename = r"{input_filename}"\n'
-        + f"    m = d{day}.ClassName(filename)\n"
-        + f"    assert m.part1() == 99\n\n\n"
+        + f"    m = d{day}.ClassName(input_filename)\n"
+        + "    assert m.part1() == 99\n\n\n"
         + "def test_example_part2():\n"
-        + f'    filename = r"{test_input_filename}"\n'
-        + f"    m = d{day}.ClassName(filename)\n"
-        + f"    assert m.part2() == 99\n\n\n"
+        + f"    m = d{day}.ClassName(test_input_filename)\n"
+        + "    assert m.part2() == 99\n\n\n"
         + "def test_part2():\n"
-        + f'    filename = r"{input_filename}"\n'
-        + f"    m = d{day}.ClassName(filename)\n"
-        + f"    assert m.part2() == 99\n"
+        + f"    m = d{day}.ClassName(input_filename)\n"
+        + "    assert m.part2() == 99\n"
     )
     test_file.close()
 
