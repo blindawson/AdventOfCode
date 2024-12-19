@@ -75,7 +75,12 @@ def read_input(filename, flavor=None, split_char=None):
 
 
 # Listing adjacent coordinates in a grid
-def point_out_of_bounds(y: int, x: int, grid: list[list[int]]) -> bool:
+def point_out_of_bounds(
+    y: int, x: int, grid: list[list[int]], yx: tuple = None
+) -> bool:
+    if not y and not x and yx:
+        y = yx[0]
+        x = yx[1]
     if (y < 0) | (y >= len(grid)) | (x < 0) | (x >= len(grid[0])):
         return True
     else:
