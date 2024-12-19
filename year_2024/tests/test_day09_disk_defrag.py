@@ -22,4 +22,4 @@ def test_example_part2():
 
 def test_part2():
     m = d09.Part2(input_filename)
-    assert m.part2() == 99
+    assert m.part2() == 6476642796832

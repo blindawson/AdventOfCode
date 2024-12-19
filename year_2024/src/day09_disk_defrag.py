@@ -75,67 +75,83 @@ class Part2:
         self.disk_input = support.read_input(filename)[0]
         self.disk_len = len(self.disk_input)
 
-        self.blocks = pd.DataFrame(columns=["ID", "Range", "Size", "Moved"])
+        block_sizes = [int(x) for x in self.disk_input[::2]]
+        self.blocks = pd.DataFrame(
+            {
+                "ID": range(len(block_sizes)),
+                "Range": [[]] * len(block_sizes),
+                "Size": block_sizes,
+            }
+        )
         self.blocks.set_index("ID", inplace=True)
 
-        self.gaps = pd.DataFrame(columns=["Range", "Size"])
+        gap_sizes = [int(x) for x in self.disk_input[1::2]]
+        self.gaps = pd.DataFrame(
+            {
+                "ID": range(len(gap_sizes)),
+                "Range": [[]] * len(gap_sizes),
+                "Size": gap_sizes,
+            }
+        )
+        self.gaps.set_index("ID", inplace=True)
 
-    def create_block(self, id, idx_range):
-        self.blocks.loc[id] = {
-            "Range": idx_range,
-            "Size": len(idx_range),
-            "Moved": False,
-        }
+        previous_gap_loc = -1
+        for idx in range(max(self.blocks.index[-1], self.gaps.index[-1]) + 1):
+            block_range = [
+                previous_gap_loc + 1 + x for x in range(self.blocks.loc[idx, "Size"])
+            ]
+            self.blocks.at[idx, "Range"] = block_range
+            if block_range:
+                previous_block_loc = block_range[-1]
+            else:
+                previous_block_loc = previous_gap_loc
 
-    def create_gap(self, idx_range):
-        new_gap = pd.DataFrame({"Range": [idx_range], "Size": [len(idx_range)]})
-        self.gaps = pd.concat([self.gaps, new_gap], ignore_index=True)
+            if idx <= self.gaps.index[-1]:
+                gap_range = [
+                    previous_block_loc + 1 + x
+                    for x in range(self.gaps.loc[idx, "Size"])
+                ]
+                self.gaps.at[idx, "Range"] = gap_range
+                if gap_range:
+                    previous_gap_loc = gap_range[-1]
+                else:
+                    previous_gap_loc = previous_block_loc
 
     def part2(self):
-        block_id = 0
-        input_idx = 0
-        output_idx = 0
-        while input_idx < self.disk_len:
-            block_size = int(self.disk_input[input_idx])
-            self.create_block(block_id, [output_idx + i for i in range(block_size)])
-            input_idx += 1
-            output_idx += block_size
-            block_id += 1
-
-            if input_idx < self.disk_len:
-                block_size = int(self.disk_input[input_idx])
-                self.create_gap([output_idx + i for i in range(block_size)])
-                input_idx += 1
-                output_idx += block_size
-
-        # for blocks from last to first
+        mask_dict = {key: self.gaps["Size"] >= key for key in range(10)}
+        update_dict = {}
         for block_idx, block in self.blocks.iloc[::-1].iterrows():
-            print(block_idx)
-            if not block["Moved"]:
-                for gap_idx, gap in self.gaps.iterrows():
-                    if (
-                        block["Size"] <= gap["Size"]
-                        and block["Range"][0] > gap["Range"][0]
-                    ):
-                        self.blocks.at[block_idx, "Range"] = [
+            if block["Size"] > 0:
+                print(self.blocks, self.gaps, update_dict)
+                large_gaps = mask_dict[block["Size"]]
+                # large_gaps = self.gaps[self.gaps["Size"] >= block["Size"]]
+                if not self.gaps[large_gaps].empty:
+                    gap = self.gaps[large_gaps].iloc[0]
+                    gap_idx = gap.name
+                    if gap_idx < block_idx:
+
+                        update_dict[block_idx] = [
                             gap["Range"][0] + i for i in range(block["Size"])
                         ]
-                        self.gaps.loc[gap_idx, "Size"] = gap["Size"] - block["Size"]
-                        self.gaps.at[gap_idx, "Range"] = [
-                            self.blocks.at[block_idx, "Range"][-1] + 1 + i
-                            for i in range(gap["Size"] - block["Size"])
-                        ]
-                        break
-                self.blocks.loc[block_idx, "Moved"] = True
-        
+
+                        new_gap_size = gap["Size"] - block["Size"]
+                        for size in range(gap["Size"], new_gap_size, -1):
+                            mask_dict[size][gap_idx] = False
+                        self.gaps.loc[gap_idx, "Size"] = new_gap_size
+
+                        if new_gap_size == 0:
+                            self.gaps.at[gap_idx, "Range"] = []
+                        else:
+                            self.gaps.at[gap_idx, "Range"] = gap["Range"][
+                                -new_gap_size:
+                            ]
+
+        update_series = pd.Series(update_dict)
+        self.blocks.loc[update_series.index, "Range"] = update_series.values
+
         checksum = 0
+        print(self.blocks, self.gaps, update_dict)
         for block_idx, block in self.blocks.iterrows():
             checksum += block_idx * sum(block["Range"])
-            
+
         return checksum
-
-
-filename = r"year_2024/tests/test_inputs/09_test_input.txt"
-filename = r"year_2024/input/09_disk_defrag.txt"
-m = Part2(filename)
-# m.part2()
