@@ -19,4 +19,4 @@ def test_part1():
 
 def test_part2():
     m = d11.ClassName(input_filename)
-    assert m.part1(75) == 99
+    assert m.part1(75) == 221291560078593
