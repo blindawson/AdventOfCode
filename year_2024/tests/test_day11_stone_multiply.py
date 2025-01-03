@@ -8,6 +8,7 @@ input_filename = r"year_2024/input/11_stone_multiply.txt"
 def test_example():
     m = d11.ClassName(test_input_filename)
     assert m.part1(6) == 22
+    m = d11.ClassName(test_input_filename)
     assert m.part1(25) == 55312
 
 
