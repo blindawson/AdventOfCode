@@ -7,14 +7,14 @@ input_filename = r"year_2024/input/13_claw_game.txt"
 
 def test_example():
     m = d13.ClassName(test_input_filename)
-    assert m.part1() == 480
+    assert m.run_input() == 480
 
 
 def test_part1():
     m = d13.ClassName(input_filename)
-    assert m.part1() == 29522
+    assert m.run_input() == 29522
 
 
 def test_part2():
     m = d13.ClassName(input_filename)
-    assert m.part2a() == 99
+    assert m.run_input(part2=True) == 101214869433312
