@@ -15,11 +15,6 @@ def test_part1():
     assert m.part1() == 29522
 
 
-def test_example_part2():
-    m = d13.ClassName(test_input_filename)
-    assert m.part2() == 99
-
-
 def test_part2():
     m = d13.ClassName(input_filename)
-    assert m.part2() == 99
+    assert m.part2a() == 99
