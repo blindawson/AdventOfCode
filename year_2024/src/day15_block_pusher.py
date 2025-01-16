@@ -3,7 +3,8 @@ import numpy as np
 
 
 class ClassName:
-    def __init__(self, filename):
+    def __init__(self, filename, part2=False):
+        self.part2 = part2
         self.read_input(filename)
         self.direction_dict = {"^": (-1, 0), "v": (1, 0), ">": (0, 1), "<": (0, -1)}
 
@@ -13,109 +14,139 @@ class ClassName:
         self.grid = np.array(self.file_input[:empty_row])
         self.directions = self.file_input[empty_row + 1 :]
         self.directions = [item for sublist in self.directions for item in sublist]
+        self.direction = self.directions[0]
+        if self.part2:
+            self.grid = np.array(
+                [[item for item in row for _ in range(2)] for row in self.grid]
+            )
+            at_positions = np.argwhere(self.grid == "@")
+            self.grid[tuple(at_positions[1])] = "."
+            for row in range(self.grid.shape[0]):
+                for col in range(self.grid.shape[1]):
+                    if self.grid[row][col] == "O":
+                        self.grid[row][col] = "["
+                        self.grid[row][col + 1] = "]"
 
-    def move_robot(self, direction):
-        robot_pos = np.where(self.grid == "@")
-        new_pos = support.sum_tuples(robot_pos, self.direction_dict[direction])
-        if self.grid[new_pos] == "#":
-            # don't move
-            pass
-        elif self.grid[new_pos] == ".":
-            self.grid[robot_pos] = "."
-            self.grid[new_pos] = "@"
-        elif self.grid[new_pos] == "O":
-            moving_space, new_values = self.moving_space_coordinates(direction)
-            # if space, move boxes and robot
-            if moving_space:
-                for space, value in zip(moving_space, new_values[0]):
-                    self.grid[space] = value
-            # if no space, don't move
+    def update_object_position(self, old_location, new_location):
+        obj_type = self.grid[old_location]
+        if obj_type[0] in "[]":
+            left_pos, right_pos = self.find_other_box_position(old_location)
+            left_new_pos = support.sum_tuples(
+                left_pos, self.direction_dict[self.direction]
+            )
+            right_new_pos = support.sum_tuples(
+                right_pos, self.direction_dict[self.direction]
+            )
+            self.grid[left_pos] = "."
+            self.grid[right_pos] = "."
+            self.grid[left_new_pos] = "["
+            self.grid[right_new_pos] = "]"
+        else:
+            self.grid[old_location] = "."
+            self.grid[new_location] = obj_type
 
-    def box_gps(self, coord):
-        return coord[0] * 100 + coord[1]
+    def find_other_box_position(self, object_location):
+        # TODO: we want the output to be nice tuples
+        object_type = self.grid[object_location][0]
+        if object_type == "[":
+            left_pos = object_location
+            right_pos = (object_location[0], object_location[1] + 1)
+        elif object_type == "]":
+            left_pos = (object_location[0], object_location[1] - 1)
+            right_pos = object_location
+        return left_pos, right_pos
 
-    def moving_space_coordinates(self, direction):
-        robot_pos = np.where(self.grid == "@")
-        robot_pos = (robot_pos[0][0], robot_pos[1][0]) 
-        new_pos = support.sum_tuples(robot_pos, self.direction_dict[direction])
-        moving_coordinates = []
-        new_values = []
-        if direction == "<":
-            row = robot_pos[0]
-            for col in range(new_pos[1], 0, -1):
-                if self.grid[row, col] == ".":
-                    # change [.OO@] to [OO@.]
-                    # moving_coordinates are indices from . to @
-                    moving_coordinates = [(row, c) for c in range(col, robot_pos[1] + 1)]
-                    new_values = [["O"]*(len(moving_coordinates)-2) + ["@","."]]
-                    break
-                elif self.grid[row, col] == "#":
-                    break
-                elif self.grid[row, col] == "O":
-                    continue
-        elif direction == ">":
-            row = robot_pos[0]
-            for col in range(new_pos[1], self.grid.shape[1]):
-                if self.grid[row, col] == ".":
-                    # change [@OO.] to [.@OO]
-                    # moving_coordinates are indices from . to @
-                    moving_coordinates = [(row, c) for c in range(robot_pos[1], col + 1)]
-                    new_values = [[".","@"] + ["O"]*(len(moving_coordinates)-2)]
-                    break
-                elif self.grid[row, col] == "#":
-                    break
-                elif self.grid[row, col] == "O":
-                    continue
-        elif direction == "^":
-            col = robot_pos[1]
-            for row in range(new_pos[0], 0, -1):
-                if self.grid[row, col] == ".":
-                    # change [.      [O
-                    #         O   to  O
-                    #         O       @
-                    #         @]      .]
-                    # moving_coordinates are indices from . to @
-                    moving_coordinates = [(r, col) for r in range(row, robot_pos[0] + 1)]
-                    new_values = [["O"]*(len(moving_coordinates)-2) + ["@","."]]
-                    break
-                elif self.grid[row, col] == "#":
-                    break
-                elif self.grid[row, col] == "O":
-                    continue
-        elif direction == "v":
-            col = robot_pos[1]
-            for row in range(new_pos[0], self.grid.shape[0]):
-                if self.grid[row, col] == ".":
-                    # change [@      [.
-                    #         O   to  @
-                    #         O       O
-                    #         .]      O]
-                    # moving_coordinates are indices from . to @
-                    moving_coordinates = [(r, col) for r in range(robot_pos[0], row + 1)]
-                    new_values = [[".","@"] + ["O"]*(len(moving_coordinates)-2)]
-                    break
-                elif self.grid[row, col] == "#":
-                    break
-                elif self.grid[row, col] == "O":
-                    continue
-        return moving_coordinates, new_values
+    def try_move_object(self, obj_pos):
+        new_pos = support.sum_tuples(obj_pos, self.direction_dict[self.direction])
+        obj_type = self.grid[obj_pos][0]
+        # If trying to move a large box
+        if obj_type in "[]":
+            left_pos, right_pos = self.find_other_box_position(obj_pos)
+            left_new_pos = support.sum_tuples(
+                left_pos, self.direction_dict[self.direction]
+            )
+            right_new_pos = support.sum_tuples(
+                right_pos, self.direction_dict[self.direction]
+            )
 
-    def part1(self):
-        for direction in self.directions:
-            self.move_robot(direction)
-            print(direction)
-            print(self.grid)
-        box_positions = np.argwhere(self.grid == "O")
+            if self.direction in "^v":
+                # if path is blocked
+                if self.grid[left_new_pos] == "#" or self.grid[right_new_pos] == "#":
+                    pass
+                # if path is free
+                elif self.grid[left_new_pos] == "." and self.grid[right_new_pos] == ".":
+                    self.update_object_position(left_pos, left_new_pos)
+                # if path has a large block in it
+                else:
+                    if self.grid[left_new_pos][0] in "[]":
+                        self.try_move_object(left_new_pos)
+                    if self.grid[right_new_pos][0] in "[]":
+                        self.try_move_object(right_new_pos)
+                    if (
+                        self.grid[left_new_pos] == "."
+                        and self.grid[right_new_pos] == "."
+                    ):
+                        self.update_object_position(left_pos, left_new_pos)
+
+            else:
+                pass
+                # TODO: Implement logic for moving large boxes horizontally
+                # if moving left then just check left side and then move
+                if self.direction == "<":
+                    obj_pos = left_pos
+                    new_pos = left_new_pos
+                elif self.direction == ">":
+                    obj_pos = right_pos
+                    new_pos = right_new_pos
+                
+                # if path is blocked
+                if self.grid[new_pos] == "#":
+                    pass
+                # if path is free
+                elif self.grid[new_pos] == ".":
+                    self.update_object_position(obj_pos, new_pos)
+                # if path has a block
+                elif self.grid[new_pos][0] in "O[]":
+                    self.try_move_object(new_pos)
+                    if self.grid[new_pos] == ".":
+                        self.update_object_position(obj_pos, new_pos)
+                # if moving right then just check right side and then move
+        # If trying to move a small box/robot
+        else:
+            # if path is blocked
+            if self.grid[new_pos] == "#":
+                pass
+            # if path is free
+            elif self.grid[new_pos] == ".":
+                self.update_object_position(obj_pos, new_pos)
+            # if path has a block
+            elif self.grid[new_pos][0] in "O[]":
+                self.try_move_object(new_pos)
+                if self.grid[new_pos] == ".":
+                    self.update_object_position(obj_pos, new_pos)
+
+    def sum_box_gps(self):
         gps_sum = 0
+        box_positions = np.argwhere(np.isin(self.grid, ["O", "["]))
         for box_position in box_positions:
-            gps_sum += self.box_gps(box_position)
+            gps_sum += box_position[0] * 100 + box_position[1]
         return gps_sum
 
-    def part2(self):
-        pass
+    def move_robot_all_instructions(self):
+        for direction in self.directions:
+            self.direction = direction
+            self.print_grid()
+            print(direction)
+            robot_pos = np.where(self.grid == "@")
+            self.try_move_object(robot_pos)
+
+    def print_grid(self):
+        for row in self.grid:
+            print("".join(row))
 
 
 filename = r"year_2024/tests/test_inputs/15_test_input.txt"
 # filename = r"year_2024/input/15_block_pusher.txt"
-m = ClassName(filename)
-m.part1()
+m = ClassName(filename, part2=True)
+m.move_robot_all_instructions()
+m.sum_box_gps()
