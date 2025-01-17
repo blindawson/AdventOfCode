@@ -7,6 +7,7 @@ class ClassName:
         self.part2 = part2
         self.read_input(filename)
         self.direction_dict = {"^": (-1, 0), "v": (1, 0), ">": (0, 1), "<": (0, -1)}
+        self.reverse_direction_dict = {"^": "v", "v": "^", ">": "<", "<": ">"}
 
     def read_input(self, filename):
         self.file_input = support.read_input(filename, flavor="str_grid")
@@ -27,27 +28,34 @@ class ClassName:
                         self.grid[row][col] = "["
                         self.grid[row][col + 1] = "]"
 
-    def update_object_position(self, old_location, new_location):
+    def update_object_position(
+        self, old_location, new_location, conditional_move=True, reverse_direction=False
+    ):
         obj_type = self.grid[old_location]
-        if obj_type[0] in "[]":
+        if reverse_direction:
+            direction = self.reverse_direction_dict[self.direction]
+        else:
+            direction = self.direction
+        if obj_type in "[]":
             left_pos, right_pos = self.find_other_box_position(old_location)
-            left_new_pos = support.sum_tuples(
-                left_pos, self.direction_dict[self.direction]
-            )
+            left_new_pos = support.sum_tuples(left_pos, self.direction_dict[direction])
             right_new_pos = support.sum_tuples(
-                right_pos, self.direction_dict[self.direction]
+                right_pos, self.direction_dict[direction]
             )
             self.grid[left_pos] = "."
             self.grid[right_pos] = "."
             self.grid[left_new_pos] = "["
             self.grid[right_new_pos] = "]"
+            if conditional_move:
+                self.moved_objects.append((left_pos, left_new_pos))
         else:
             self.grid[old_location] = "."
             self.grid[new_location] = obj_type
+            if conditional_move:
+                self.moved_objects.append((old_location, new_location))
 
     def find_other_box_position(self, object_location):
-        # TODO: we want the output to be nice tuples
-        object_type = self.grid[object_location][0]
+        object_type = self.grid[object_location]
         if object_type == "[":
             left_pos = object_location
             right_pos = (object_location[0], object_location[1] + 1)
@@ -56,74 +64,80 @@ class ClassName:
             right_pos = object_location
         return left_pos, right_pos
 
-    def try_move_object(self, obj_pos):
-        new_pos = support.sum_tuples(obj_pos, self.direction_dict[self.direction])
-        obj_type = self.grid[obj_pos][0]
+    def try_move_object(self, obj_pos, direction=None):
+        if not direction:
+            direction = self.direction
+        moved = False
+        new_pos = support.sum_tuples(obj_pos, self.direction_dict[direction])
+        obj_type = self.grid[obj_pos]
         # If trying to move a large box
         if obj_type in "[]":
             left_pos, right_pos = self.find_other_box_position(obj_pos)
-            left_new_pos = support.sum_tuples(
-                left_pos, self.direction_dict[self.direction]
-            )
+            left_new_pos = support.sum_tuples(left_pos, self.direction_dict[direction])
             right_new_pos = support.sum_tuples(
-                right_pos, self.direction_dict[self.direction]
+                right_pos, self.direction_dict[direction]
             )
 
-            if self.direction in "^v":
+            if direction in "^v":
                 # if path is blocked
                 if self.grid[left_new_pos] == "#" or self.grid[right_new_pos] == "#":
                     pass
                 # if path is free
                 elif self.grid[left_new_pos] == "." and self.grid[right_new_pos] == ".":
-                    self.update_object_position(left_pos, left_new_pos)
+                    self.update_object_position(obj_pos, new_pos)
+                    moved = True
                 # if path has a large block in it
                 else:
-                    if self.grid[left_new_pos][0] in "[]":
-                        self.try_move_object(left_new_pos)
-                    if self.grid[right_new_pos][0] in "[]":
-                        self.try_move_object(right_new_pos)
+                    if self.grid[left_new_pos] in "[]":
+                        _ = self.try_move_object(left_new_pos)
+                    if self.grid[right_new_pos] in "[]":
+                        _ = self.try_move_object(right_new_pos)
                     if (
                         self.grid[left_new_pos] == "."
                         and self.grid[right_new_pos] == "."
                     ):
-                        self.update_object_position(left_pos, left_new_pos)
+                        self.update_object_position(obj_pos, new_pos)
+                        moved = True
 
             else:
                 pass
-                # TODO: Implement logic for moving large boxes horizontally
                 # if moving left then just check left side and then move
-                if self.direction == "<":
+                if direction == "<":
                     obj_pos = left_pos
                     new_pos = left_new_pos
-                elif self.direction == ">":
+                elif direction == ">":
                     obj_pos = right_pos
                     new_pos = right_new_pos
-                
+
                 # if path is blocked
                 if self.grid[new_pos] == "#":
                     pass
                 # if path is free
                 elif self.grid[new_pos] == ".":
                     self.update_object_position(obj_pos, new_pos)
+                    moved = True
                 # if path has a block
-                elif self.grid[new_pos][0] in "O[]":
+                elif self.grid[new_pos] in "[]":
                     self.try_move_object(new_pos)
                     if self.grid[new_pos] == ".":
                         self.update_object_position(obj_pos, new_pos)
-                # if moving right then just check right side and then move
+                        moved = True
         # If trying to move a small box/robot
         else:
-            # if path is blocked
+            # if path is blocked by a wall
             if self.grid[new_pos] == "#":
                 pass
             # if path is free
             elif self.grid[new_pos] == ".":
                 self.update_object_position(obj_pos, new_pos)
-            # if path has a block
-            elif self.grid[new_pos][0] in "O[]":
+                moved = True
+            # if path is blocked by a box
+            elif self.grid[new_pos] in "O[]":
                 self.try_move_object(new_pos)
                 if self.grid[new_pos] == ".":
                     self.update_object_position(obj_pos, new_pos)
+                    moved = True
+        return moved
 
     def sum_box_gps(self):
         gps_sum = 0
@@ -135,18 +149,16 @@ class ClassName:
     def move_robot_all_instructions(self):
         for direction in self.directions:
             self.direction = direction
-            self.print_grid()
-            print(direction)
             robot_pos = np.where(self.grid == "@")
-            self.try_move_object(robot_pos)
+            robot_pos = (robot_pos[0][0], robot_pos[1][0])
+            self.moved_objects = []
+            moved = self.try_move_object(robot_pos)
+            if not moved:
+                for m in reversed(self.moved_objects):
+                    self.update_object_position(
+                        m[1], m[0], conditional_move=False, reverse_direction=True
+                    )
 
     def print_grid(self):
         for row in self.grid:
             print("".join(row))
-
-
-filename = r"year_2024/tests/test_inputs/15_test_input.txt"
-# filename = r"year_2024/input/15_block_pusher.txt"
-m = ClassName(filename, part2=True)
-m.move_robot_all_instructions()
-m.sum_box_gps()

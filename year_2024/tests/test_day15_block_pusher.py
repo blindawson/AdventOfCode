@@ -26,5 +26,4 @@ def test_example_part2():
 def test_part2():
     m = d15.ClassName(input_filename, part2=True)
     m.move_robot_all_instructions()
-    assert m.sum_box_gps() == 99
-    # 1448462 too high
+    assert m.sum_box_gps() == 1448458
