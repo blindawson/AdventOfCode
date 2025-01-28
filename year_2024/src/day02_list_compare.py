@@ -1,5 +1,3 @@
-import copy
-
 from support import support
 
 
@@ -60,10 +58,3 @@ class ClassName:
             print(safe_report)
             safe_reports += int(safe_report)
         return safe_reports
-
-
-filename = r"year_2024/tests/test_inputs/02_test_input.txt"
-# filename = r"year_2024/input/02_list_compare.txt"
-m = ClassName(filename)
-# m.part2()
-m.test_report([27, 24, 25, 26, 28, 31, 34])

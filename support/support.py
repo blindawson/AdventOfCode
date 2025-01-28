@@ -212,3 +212,8 @@ def subtract_tuples(tuple1, tuple2):
 
 def reverse_array(a):
     return a[::-1]
+    
+
+def print_grid(grid):
+    for row in grid:
+        print("".join(row))
